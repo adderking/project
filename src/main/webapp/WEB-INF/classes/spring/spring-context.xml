@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="
+      http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+      http://www.springframework.org/schema/context
+      http://www.springframework.org/schema/context/spring-context-4.2.xsd
+      http://www.springframework.org/schema/aop
+      http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+      http://www.springframework.org/schema/tx
+      http://www.springframework.org/schema/tx/spring-tx-4.2.xsd ">
+
+	<description>Spring Configuration</description>
+
+    <!-- 加载配置属性文件 -->
+	<context:property-placeholder ignore-unresolvable="true" location="classpath*:prop/DB.properties" />
+
+	<!-- 使用Annotation自动注册Bean，解决事物失效问题：在主容器中不扫描@Controller注解，在SpringMvc中只扫描@Controller注解。  -->
+	<context:component-scan base-package="com.scisdata.web" /><!-- base-package 如果多个，用“,”分隔 -->
+		<!-- data source -->
+	<bean class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close" id="dataSource">
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxPoolSize" value="${c3p0.maxPoolSize}" />
+		<property name="minPoolSize" value="${c3p0.minPoolSize}" />
+		<property name="maxIdleTime" value="${c3p0.maxIdleTime}" />
+		<property name="maxStatements" value="${c3p0.maxStatements}" />
+		<property name="acquireIncrement" value="${c3p0.acquireIncrement}" />
+		<property name="idleConnectionTestPeriod" value="${c3p0.idleConnectionTestPeriod}" />
+		<property name="driverClass" value="${jdbc.driver}"/>
+		<property name="jdbcUrl" value="${jdbc.url}"/>
+		<property name="user" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+	</bean>
+
+
+	<!-- *********事物管理************** -->
+	<bean id="transactionManager"
+		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 事物拦截的包路径 -->
+	<aop:config>
+		<aop:advisor pointcut="execution(* com.scisdata.web.Service.*.*(..))"
+					 advice-ref="txAdvice" />
+	</aop:config>
+	<!-- 事物拦截的类型 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true" />
+			<tx:method name="query*" read-only="true" />
+			<tx:method name="find*" read-only="true" />
+			<tx:method name="pageQuery*" read-only="true"/>
+			<tx:method name="load*" read-only="true" />
+			<tx:method name="select*" read-only="true" />
+			<tx:method name="update*" propagation="REQUIRED"/>
+			<tx:method name="add*" propagation="REQUIRED"/>
+			<tx:method name="insert*" propagation="REQUIRED"/>
+			<tx:method name="delete*" propagation="REQUIRED"/>
+			<tx:method name="alter*" propagation="REQUIRED" />
+			<tx:method name="exec*" propagation="REQUIRED"/>
+			<tx:method name="*" propagation="REQUIRED" rollback-for="Exception" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- 配置 Annotation 驱动，定义事务 -->
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+	
+	<!-- 配置 JSR303 Bean Validator 定义 -->
+<!-- 	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" /> -->
+
+ 
+	<!-- 自定义 jdbc -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	 
+
+</beans>
