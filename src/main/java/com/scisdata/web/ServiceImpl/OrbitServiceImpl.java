@@ -25,7 +25,7 @@ public class OrbitServiceImpl implements OrbitService{
         if(!StringUtils.isEmpty(mac)){
             if(!StringUtils.isEmpty(startDate)&&!StringUtils.isEmpty(endDate)){
                 String  sql = "select m.*,w.latitude as equipmentLatitude\n" +
-                        ",w.langitude as equipmentLangitude from mactrace m left join macInfo i \n" +
+                        ",w.langitude as equipmentLangitude,i.macAddress from mactrace m left join macInfo i \n" +
                         "on m.macId = i.primaryId left join wifiEquipmentInfo w\n" +
                         "on m.equipmentId = w.equipmentId where \n" +
                         "m.startTime>='"+startDate+"'\n" +
@@ -35,7 +35,7 @@ public class OrbitServiceImpl implements OrbitService{
                 return list;
             }else{
                 String  sql = "select m.*,w.latitude as equipmentLatitude\n" +
-                        ",w.langitude as equipmentLangitude from mactrace m left join macInfo i \n" +
+                        ",w.langitude as equipmentLangitude,i.macAddress from mactrace m left join macInfo i \n" +
                         "on m.macId = i.primaryId left join wifiEquipmentInfo w\n" +
                         "on m.equipmentId = w.equipmentId where \n" +
                         "m.startTime>='"+ DateUtils.formatDate(new Date(),"yyyy-MM-dd")+" 00:00:00'\n" +
@@ -82,7 +82,7 @@ public class OrbitServiceImpl implements OrbitService{
     public List<Map<String, String>> getCarHistoryOrbit(String plate, String startDate, String endDate) {
         if(!StringUtils.isEmpty(plate)){
             if(!StringUtils.isEmpty(startDate)&&!StringUtils.isEmpty(endDate)){
-                String  sql = "select c.* from cartrace c left join carinfo i\n" +
+                String  sql = "select c.*,i.carPlate from cartrace c left join carinfo i\n" +
                         "on i.primaryId=c.carPlateId left join \n" +
                         "videoEquipmentInfo v on \n" +
                         "v.equipmentId=c.equipmentId\n" +
@@ -91,7 +91,7 @@ public class OrbitServiceImpl implements OrbitService{
                 List<Map<String,String>> list = this.orbitDao.queryList(sql);
                 return list;
             }else{
-                String  sql = "select c.* from cartrace c left join carinfo i\n" +
+                String  sql = "select c.*,i.carPlate from cartrace c left join carinfo i\n" +
                         "on i.primaryId=c.carPlateId left join \n" +
                         "videoEquipmentInfo v on \n" +
                         "v.equipmentId=c.equipmentId\n" +

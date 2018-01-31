@@ -33,8 +33,7 @@ public class ImportWifiEquipmentInfo {
      */
     private void tableHandler(XWPFTable xwpfTable,int[] metaIndex) {
         int rows = xwpfTable.getNumberOfRows();
-        int colBand = xwpfTable.getColBandSize();
-        System.out.println(rows + ","+colBand);
+        System.out.println(rows);
         XWPFTableRow xwpfTableRow = null;
         for(int i=1;i<rows;i++) {
             xwpfTableRow= xwpfTable.getRow(i);

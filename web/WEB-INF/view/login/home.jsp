@@ -26,7 +26,9 @@
   <link rel="stylesheet" href="<%=path%>/assets/js/datepicker/datepicker.css">
   <link rel="stylesheet" href="<%=path%>/assets/js/datepicker/bootstrap-datetimepicker.css">
   <link rel="stylesheet" type="text/css" href="<%=path%>/assets/js/progress-bar/number-pb.css?version=<%=System.currentTimeMillis()%>">
-
+<%--  <link href="<%=path%>/page/css/amazeui.flat.css?version=<%=System.currentTimeMillis()%>" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="<%=path%>/page/css/zzsc-demo.css?version=<%=System.currentTimeMillis()%>">--%>
+  <link rel="stylesheet" href="<%=path%>/page/dist/css/am-pagination.css?version=<%=System.currentTimeMillis()%>">
 
   <style type="text/css">
     canvas#canvas4 {
@@ -42,12 +44,27 @@
     #sub-car{
       z-index:1;
       position:absolute;
-      border:1px solid #8B8986;
+      border:1px solid #e2e2e2;
       background: #fff;
-      font-size: 9pt;
+      font-size: 14px;
       font-color:#000;
+      text-align: left;
+      box-shadow: 2px 2px 5px #73716e;
+      width:240px;
+      height:180px;
     }
-    #sub-car ul,li{
+    #sub-car table{
+      border:0px solid #fff;
+      table-space:2px;
+      line-height: 1.5;
+    }
+    #sub-car #macOrCarPlate{
+      background-color:#e2e2e2;
+      text-indent: 1em;
+      height:20px;
+    }
+    #sub-car a{
+      text-align: right;
 
     }
   </style>
@@ -214,7 +231,7 @@
 
 
           <li>
-            <a class="tooltip-tip" href="#" title="UI Element">
+            <a class="tooltip-tip" href="#" onclick="qqbkText('aa','布控、轨迹绑定','车辆布控','全区布控','1','车牌号码');" title="UI Element">
               <i class="icon-monitor"></i>
               <span>全区布控</span>
             </a>
@@ -303,7 +320,9 @@
       </div>
     </div>
     <!--/ TITLE -->
-    <div id="sub-car" style="display: none;z-index:999"></div>
+    <div id="sub-car" style="display: none;">
+
+    </div>
     <!-- BREADCRUMB -->
     <ul id="breadcrumb">
       <li>
@@ -318,7 +337,7 @@
       <li id="MacHistoryInfo"><a href="#" title="Sample page 1">MAC历史轨迹查询</a>
       </li>
       <li>
-        <div class="input-group input-widget">
+        <div class="input-group input-widget" id="textMac">
           <input style="border-radius:15px" type="text" id="macAddress"  placeholder="MAC地址" class="form-control">
         </div>
       </li>
@@ -385,10 +404,11 @@
 <script type="text/javascript" src="<%=path%>/assets/js/main.js?version=<%=System.currentTimeMillis()%>"></script>
 <script type="text/javascript" src="<%=path%>/heatMap/js/apiv2.0.min.js?version=<%=System.currentTimeMillis()%>"></script>
 
-<script type="text/javascript" src="<%=path%>/assets/js/timepicker/bootstrap-timepicker.js"></script>
-<script type="text/javascript" src="<%=path%>/assets/js/datepicker/bootstrap-datepicker.js"></script>
-<script type="text/javascript" src="<%=path%>/assets/js/datepicker/bootstrap-datetimepicker.js"></script>
-
+<script type="text/javascript" src="<%=path%>/assets/js/timepicker/bootstrap-timepicker.js?version=<%=System.currentTimeMillis()%>"></script>
+<script type="text/javascript" src="<%=path%>/assets/js/datepicker/bootstrap-datepicker.js?version=<%=System.currentTimeMillis()%>"></script>
+<script type="text/javascript" src="<%=path%>/assets/js/datepicker/bootstrap-datetimepicker.js?version=<%=System.currentTimeMillis()%>"></script>
+<script type="text/javascript" src="<%=path%>/assets/js/bk.js?version=<%=System.currentTimeMillis()%>"></script>
+<script type="text/javascript" src="<%=path%>/page/dist/js/am-pagination.js?version=<%=System.currentTimeMillis()%>"></script>
 <!-- GAGE -->
 
 
@@ -413,15 +433,6 @@ $("#dp1").datepicker({
 $("#dp2").datepicker({
   format: "yyyy-mm-dd"//日期格式
 });
-/*//先初始化一个地图
-var map = new BMap.Map("mapContainer");
-var point = new BMap.Point(116.404,39.915);
-map.centerAndZoom(point,15);
-map.clearOverlays();
-map.enableScrollWheelZoom(true);
-var marker = new BMap.Marker(point);  // 创建标注
-marker.setAnimation(BMAP_ANIMATION_DROP); //跳动的动画
-map.addOverlay(marker);// 将标注添加到地图中*/
 var polyline = new BMap.Polyline([ new BMap.Point(116.424391,39.936625),new BMap.Point(116.438764,39.957423),new BMap.Point(116.550872,39.931314) ], {
   strokeColor : "blue",
   strokeWeight : 2,
@@ -438,21 +449,35 @@ function queryView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
   $('#button').append('<button type="button" class="btn btn-default" onclick="queryView(\''+actionInfo+'\',\''+macInfo+'\',\''+mac+'\',\''+macHistoryInfo+'\',\'0\',\''+val+'\');">查询</button>');
   if(flag=='1'){
     //清空输入的参数
-    $("#macAddress").attr('placeholder',val);
     $("#macAddress").val("");
-    $("#dp1").val("");
-    $("#dp2").val("");
-    if(typeof($("#dp1"))=='undefined' ){
+    $("#dp1").remove();
+    $("#dp2").remove();
+    $("#macAddress").remove();
+    $('#button').children().remove();
+    if($("#dp1").length == 0){
       //设置时间框
       $("#startDate").append('<input style="border-radius:15px" id="dp1" type="text"  value="" placeholder="开始时间" class="form-control">');
     }
-    if(typeof($("#dp2"))=='undefined'){
+    if($("#dp2").length == 0){
       //设置时间框
       $("#endDate").append('<input style="border-radius:15px" id="dp2" type="text"  value="" placeholder="结束时间" class="form-control">');
     }
+    if($("#macAddress").length == 0){
+      $("#textMac").append('<input style="border-radius:15px" type="text" id="macAddress"  placeholder="MAC地址" class="form-control">');
+    }
+    if($('#button').children().length == 0){
+      $('#button').append('<button type="button" class="btn btn-default" onclick="queryView(\''+actionInfo+'\',\''+macInfo+'\',\''+mac+'\',\''+macHistoryInfo+'\',\'0\',\''+val+'\');">查询</button>');
+    }
+    $("#dp1").datepicker({
+      format: "yyyy-mm-dd"//日期格式
+    });
+    $("#dp2").datepicker({
+      format: "yyyy-mm-dd"//日期格式
+    });
+    $("#macAddress").attr('placeholder',val);
     //先初始化一个地图
     var map = new BMap.Map("mapContainer");
-    var point = new BMap.Point(116.355832,39.739583);
+    var point = new BMap.Point(116.404,39.915);
     var marker = new BMap.Marker(point);  // 创建标注
     marker.setAnimation(BMAP_ANIMATION_DROP);
     map.clearOverlays();
@@ -465,17 +490,14 @@ function queryView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
     var macAddress = $("#macAddress").val();
     var startDate = $("#dp1").val();
     var endDate = $("#dp2").val();
-    alert(macAddress);
     if(macAddress==""||macAddress==null){
       alert("请填写MAC地址");
       return false;
     }
-    alert(startDate);
     if(startDate == "" || startDate == null){
       alert("请选择开始时间");
       return false;
     }
-    alert(endDate);
     if(endDate == "" || endDate == null){
       alert("请选择结束时间");
       return false;
@@ -528,24 +550,31 @@ function queryView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
   }
 
 }
+function closeDiv(){
+  $("#sub-car").css("display", "none");
+}
 //查看详情
 function openInfoWindow(content, top,left,flag) {
   $("#sub-car").css("top", top-100 + "px");
   $("#sub-car").css("left", left-230 + "px");
   $("#sub-car").css("display", "block");
-  var html="<ul>";
+  var html="";
   if(flag=='0'){
-    html=html+"<li><a href=' "+content.equipmentLocation+"'> 车辆详情 </a ></li>";
-    html=html+"<li><a href='action/track.action/"+content.equipmentLocation+"'> 查询车辆轨迹 </a ></li>";
+    html = html+'<div id="macOrCarPlate" style="font-weight: bold;">车牌号码:'+content.carPlate+'' +
+            '<span style="margin-right: 5px;float: right;" onclick="closeDiv();">[X]</span></div>';
+    html = html+'<table id="content"><tr> <td>通过时间：</td><td>'+content.startTime+'</td></tr>' +
+            '<tr> <td>车辆照片：</td><td><img src="<%=basePath%>/heatMap/images/timg.jpeg" width="140" height="100"/></td></tr>' +
+            '<tr><td colspan="2" style="float: right;margin-right: 10px;"><a href="#" style="float: right;margin-right: 10px;">查看详情</a></td></tr></table>';
   }else{
-    html=html+"<li><a href=' "+content.equipmentLocation+"'> MAC详情 </a ></li>";
-    html=html+"<li><a href='action/track.action/"+content.equipmentLocation+"'> 查询MAC轨迹 </a ></li>";
+    html = html+'<div id="macOrCarPlate" style="font-weight: bold;">MAC:'+content.macAddress+'' +
+            '<span style="margin-right: 5px;float: right;" onclick="closeDiv();">[X]</span></div>';
+    html = html+'<table id="content"><tr> <td>通过时间：</td><td>'+content.startTime+'</td></tr>' +
+            '<tr><td colspan="2"><a href="#">查看详情</a></td></tr></table>';
   }
-
-  html=html+"</ul>";
 
   $("#sub-car").html(html);
 }
+
 function showPoly(pointList,mapInfo,val,flag){
   mapInfo.removeOverlay(polyline);
   //循环显示点对象
@@ -582,8 +611,16 @@ function queryOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
   $('#button').append('<button type="button" class="btn btn-default" onclick="queryOrbitView(\''+actionInfo+'\',\''+macInfo+'\',\''+mac+'\',\''+macHistoryInfo+'\',\'0\',\''+val+'\');">查询</button>');
   if(flag=='1'){
     //清空输入的参数
-    $("#macAddress").attr('placeholder',val);
     $("#macAddress").val("");
+    $("#macAddress").remove();
+    if($("#macAddress").length == 0){
+      $("#textMac").append('<input style="border-radius:15px" type="text" id="macAddress"  placeholder="MAC地址" class="form-control">');
+    }
+    $('#button').children().remove();
+    if($('#button').children().length == 0){
+      $('#button').append('<button type="button" class="btn btn-default" onclick="queryOrbitView(\''+actionInfo+'\',\''+macInfo+'\',\''+mac+'\',\''+macHistoryInfo+'\',\'0\',\''+val+'\');">查询</button>');
+    }
+    $("#macAddress").attr('placeholder',val);
     //先初始化一个地图
     var map = new BMap.Map("mapContainer");
     var point = new BMap.Point(116.404,39.915);
@@ -652,17 +689,17 @@ function queryOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
 function showSSPoly(pointList,mapInfo,val,flag){
   mapInfo.removeOverlay(polyline);
   //循环显示点对象
+  var marker ;
   for(c=0;c<pointList.length;c++){
-    var marker = new BMap.Marker(pointList[c]);
     if(c==pointList.length-1){
       //设置最后一个标准的图片
-      var myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/blank.png", new BMap.Size(23, 25), {
-        // 指定定位位置
-        offset: new BMap.Size(10, 25),
-        // 当需要从一幅较大的图片中截取某部分作为标注图标时，需要指定大图的偏移位置
-        imageOffset: new BMap.Size(0, 0 - c * 25) // 设置图片偏移
+      var myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/1.gif", new BMap.Size(23, 25), {
+
       });
-      var marker = new BMap.Marker(pointList[c],{icon: myIcon});
+
+      marker = new BMap.Marker(pointList[c],{icon: myIcon});
+    }else{
+      marker = new BMap.Marker(pointList[c]);
     }
     mapInfo.addOverlay(marker);
     //将途经点按顺序添加到地图上
