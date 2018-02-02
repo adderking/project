@@ -133,4 +133,30 @@ public class OrbitServiceImpl implements OrbitService{
         }
         return new ArrayList<Map<String,String>>();
     }
+
+    @Override
+    public List<Map<String, String>> getCarBKOrbit(String id) {
+        if(!StringUtils.isEmpty(id)){
+            String sql = "select t.*,r.*,m.langitude,m.latitude,i.carPlate from ControlResult r left join \n" +
+                    "ControlTask t on t.ID=r.taskId left join cartrace m left join carinfo i on i.primaryId=m.carPlateId\n" +
+                    " on r.traceId = m.primaryId \n" +
+                    " where t.ID=? ";
+            List<Map<String,String>> list = new ArrayList<>();
+            list = this.orbitDao.queryList(sql,id);
+            return list;
+        }
+        return new ArrayList<>();
+    }
+    public List<Map<String, String>> getBKOrbit(String id) {
+        if(!StringUtils.isEmpty(id)){
+            String sql = "select t.*,r.*,m.langitude,m.latitude,i.macAddress from ControlResult r left join \n" +
+                    "ControlTask t on t.ID=r.taskId left join mactrace m left join macInfo i on i.primaryId=m.macId\n" +
+                    " on r.traceId = m.primaryId \n" +
+                    " where t.ID=? ";
+            List<Map<String,String>> list = new ArrayList<>();
+            list = this.orbitDao.queryList(sql,id);
+            return list;
+        }
+        return new ArrayList<>();
+    }
 }

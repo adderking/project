@@ -23,7 +23,8 @@ public class ExecuteServiceImpl implements ExecuteService{
     @Override
     public DataStore<Map<String,Object>> getQQBKPage(int pageNum,int limit) {
         PagingParameter paging = new PagingParameter(pageNum,limit);
-        String sql = "select c.*,count(r.taskId) as totalCount from ControlTask c left join ControlResult r on c.ID=r.taskId group by r.taskId ";
+        String sql = "select c.*,count(r.taskId) as totalCount from ControlTask c left join ControlResult r on " +
+                "c.ID=r.taskId where c.controlType=0 group by r.taskId ";
         try {
             DataStore<Map<String,Object>> dataStore =  this.executeDao.pageQuery(sql,paging);
             return dataStore;

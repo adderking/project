@@ -495,7 +495,6 @@
 <script type="text/javascript" src="<%=path%>/assets/js/load.js?version=<%=System.currentTimeMillis()%>"></script>
 <script type="text/javascript" src="<%=path%>/assets/js/main.js?version=<%=System.currentTimeMillis()%>"></script>
 <script type="text/javascript" src="<%=path%>/heatMap/js/apiv2.0.min.js?version=<%=System.currentTimeMillis()%>"></script>
-
 <script type="text/javascript" src="<%=path%>/assets/js/timepicker/bootstrap-timepicker.js?version=<%=System.currentTimeMillis()%>"></script>
 <script type="text/javascript" src="<%=path%>/assets/js/datepicker/bootstrap-datepicker.js?version=<%=System.currentTimeMillis()%>"></script>
 <script type="text/javascript" src="<%=path%>/assets/js/datepicker/bootstrap-datetimepicker.js?version=<%=System.currentTimeMillis()%>"></script>
@@ -613,7 +612,17 @@ function queryView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
           mapInfo.enableScrollWheelZoom(true);
           for(var i=0;i<data.enument.length;i++){
             var pointVal = new BMap.Point(data.enument[i].langitude, data.enument[i].latitude);
-            var markerInfo = new BMap.Marker(pointVal);  // 创建标注
+            var myIcon;
+            if(actionInfo.indexOf("Car")!=-1){
+              myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/113equipment.png", new BMap.Size(23, 25), {
+
+              });
+            }else{
+              myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/wifiequipment.png", new BMap.Size(23, 25), {
+
+              });
+            }
+            var markerInfo = new BMap.Marker(pointVal,{icon: myIcon});  // 创建标注
             markerInfo.setTitle(data.enument[i].equipmentLocation);
             markerInfo.setAnimation(BMAP_ANIMATION_DROP); //跳动的动画
             mapInfo.addOverlay(markerInfo);// 将标注添加到地图中
@@ -672,14 +681,26 @@ function showPoly(pointList,mapInfo,val,flag){
   //循环显示点对象
   for(c=0;c<pointList.length;c++){
     var marker = new BMap.Marker(pointList[c]);
-    mapInfo.addOverlay(marker);
+
     //将途经点按顺序添加到地图上
     var label = new BMap.Label(c+1,{offset:new BMap.Size(20,-10)});
     marker.setLabel(label);
+    if(flag == '1'){
+      var myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/wifi.png", new BMap.Size(23, 25), {
+
+      });
+      marker = new BMap.Marker(pointList[c],{icon: myIcon});
+    }else{
+      var myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/113.png", new BMap.Size(23, 25), {
+
+      });
+      marker = new BMap.Marker(pointList[c],{icon: myIcon});
+    }
     marker.propty=val[c];
     marker.addEventListener("click", function(e) {
       openInfoWindow(e.currentTarget.propty,e.clientY, e.clientX,flag);
     });
+    mapInfo.addOverlay(marker);
   }
   polyline = new BMap.Polyline(pointList, {
     strokeColor : "#21FC03",
@@ -749,7 +770,17 @@ function queryOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
           mapInfo.enableScrollWheelZoom(true);
           for(var i=0;i<data.enument.length;i++){
             var pointVal = new BMap.Point(data.enument[i].langitude, data.enument[i].latitude);
-            var markerInfo = new BMap.Marker(pointVal);  // 创建标注
+            var myIcon;
+            if(actionInfo.indexOf("Car")!=-1){
+              myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/113equipment.png", new BMap.Size(23, 25), {
+
+              });
+            }else{
+              myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/wifiequipment.png", new BMap.Size(23, 25), {
+
+              });
+            }
+            var markerInfo = new BMap.Marker(pointVal,{icon: myIcon});  // 创建标注
             markerInfo.setTitle(data.enument[i].equipmentLocation);
             markerInfo.setAnimation(BMAP_ANIMATION_DROP); //跳动的动画
             mapInfo.addOverlay(markerInfo);// 将标注添加到地图中
@@ -791,7 +822,18 @@ function showSSPoly(pointList,mapInfo,val,flag){
 
       marker = new BMap.Marker(pointList[c],{icon: myIcon});
     }else{
-      marker = new BMap.Marker(pointList[c]);
+      if(flag == '1'){
+        var myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/wifi.png", new BMap.Size(23, 25), {
+
+        });
+        marker = new BMap.Marker(pointList[c],{icon: myIcon});
+      }else{
+        var myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/113.png", new BMap.Size(23, 25), {
+
+        });
+        marker = new BMap.Marker(pointList[c],{icon: myIcon});
+      }
+
     }
     mapInfo.addOverlay(marker);
     //将途经点按顺序添加到地图上
