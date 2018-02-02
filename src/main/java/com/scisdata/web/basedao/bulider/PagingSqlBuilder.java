@@ -46,11 +46,18 @@ public class PagingSqlBuilder {
 	 * @author fangshilei
 	 */
 	public String getCountSql(String rawSql) {
-		String countSql = "SELECT COUNT(*) AS RECORDS " + rawSql.substring(rawSql.toUpperCase().indexOf("FROM"));
+		/*String countSql = "SELECT COUNT(*) AS RECORDS " + rawSql.substring(rawSql.toUpperCase().indexOf("FROM"));
 		int orderIndex = countSql.toUpperCase().lastIndexOf("ORDER");
 		if(orderIndex >= 0) {
 			countSql = countSql.substring(0, orderIndex).trim();
 		}
+		log.debug(countSql);
+		return countSql;*/
+		int orderIndex = rawSql.toUpperCase().lastIndexOf("ORDER");
+		if(orderIndex >= 0) {
+			rawSql = rawSql.substring(0, orderIndex).trim();
+		}
+		String countSql = "SELECT COUNT(t.id) AS RECORDS from ("+ rawSql+") t";
 		log.debug(countSql);
 		return countSql;
 	}

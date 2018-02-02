@@ -29,13 +29,99 @@
 <%--  <link href="<%=path%>/page/css/amazeui.flat.css?version=<%=System.currentTimeMillis()%>" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="<%=path%>/page/css/zzsc-demo.css?version=<%=System.currentTimeMillis()%>">--%>
   <link rel="stylesheet" href="<%=path%>/page/dist/css/am-pagination.css?version=<%=System.currentTimeMillis()%>">
-
   <style type="text/css">
     canvas#canvas4 {
       position: relative;
       top: 20px;
     }
 
+  </style>
+  <style>
+
+    *:focus{
+      outline:none; /* Prevents blue border in Webkit */
+    }
+
+   /* body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; /!*  *!/
+    }*/
+
+    #top_bit {
+      width:760px;
+      margin: 0 auto;
+    }
+
+    form {
+      width:300px;
+      margin: 20px auto;
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    input, textarea {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color:#fff;
+      border:1px solid #ccc;
+      font-size:20px;
+      width:300px;
+      min-height:30px;
+      display:block;
+      margin-bottom:16px;
+      margin-top:2px;
+
+      -webkit-border-radius:5px;
+      -moz-border-radius:5px;
+      border-radius:5px;
+
+      -webkit-transition: all 0.5s ease-in-out;
+      -moz-transition: all 0.5s ease-in-out;
+      transition: all 0.5s ease-in-out;
+    }
+
+    textarea {
+      min-height:200px;
+    }
+
+    input:focus, textarea:focus {
+      -webkit-box-shadow:0 0 25px #ccc;
+      -moz-box-shadow:0 0 25px #ccc;
+      box-shadow:0 0 25px #ccc;
+
+      -webkit-transform: scale(1.05);
+      -moz-transform: scale(1.05);
+      transform: scale(1.05);
+    }
+
+    /* The interesting bit */
+
+    input:not(:focus), textarea:not(:focus) {
+      opacity:0.5;
+    }
+
+    input:required, textarea:required {
+      background:url("../heatMap/images/asterisk_orange.png") no-repeat 280px 7px;
+    }
+
+    input:valid, textarea:valid {
+      background:url("../heatMap/images/tick.png") no-repeat 280px 5px;
+    }
+
+    input:focus:invalid, textarea:focus:invalid {
+      background:url("../heatMap/images/cancel.png") no-repeat 280px 7px;
+    }
+
+    input[type=submit] {
+      padding:10px;
+      background:none;
+      opacity:1.0;
+    }
+
+  </style>
+  <style type="text/css">
+    #bg{ display: none;  position: absolute;  top: 0%;  left: 0%;  width: 100%;  height: 100%;  background-color: black;  z-index:1001;  -moz-opacity: 0.7;  opacity:.70;  filter: alpha(opacity=70);}
+    #show{display: none;  position: absolute;  top: 25%;  left: 22%;  width: 53%;  height: 65%;  padding: 8px;  border: 8px solid #E8E9F7;  background-color: white;  z-index:1002;  overflow: auto;}
   </style>
   <style type="text/css">
     #mapContainer img {
@@ -79,6 +165,13 @@
 </head>
 
 <body>
+<!--弹出遮罩层-->
+<div id="bg"></div>
+<div id="show">
+  <div style="float: right;margin-right:5px;height: 5px;"><img src="<%=basePath%>/heatMap/images/close.png" onclick="hidediv();"><%--<input id="btnclose" type="button" value="Close" onclick="hidediv();"/>--%></div>
+  <form action="#" id="bk">
+  </form>
+</div>
 <!-- Preloader -->
 <div id="preloader">
   <div id="status">&nbsp;</div>
@@ -231,7 +324,7 @@
 
 
           <li>
-            <a class="tooltip-tip" href="#" onclick="qqbkText('aa','布控、轨迹绑定','车辆布控','全区布控','1','车牌号码');" title="UI Element">
+            <a class="tooltip-tip" href="#" onclick="qqbkText('<%=basePath%>/execute/','getQQBKPage','布控、轨迹绑定','车辆布控','全区布控','1','车牌号码');" title="UI Element">
               <i class="icon-monitor"></i>
               <span>全区布控</span>
             </a>
@@ -321,7 +414,6 @@
     </div>
     <!--/ TITLE -->
     <div id="sub-car" style="display: none;">
-
     </div>
     <!-- BREADCRUMB -->
     <ul id="breadcrumb">

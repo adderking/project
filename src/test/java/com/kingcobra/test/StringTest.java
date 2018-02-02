@@ -1,3 +1,5 @@
+package com.kingcobra.test;
+
 import org.junit.Test;
 
 import java.util.regex.Matcher;
@@ -15,6 +17,7 @@ public class StringTest {
     }
 
     private void stringSplitForIndex(String content) {
+        content = content.trim();
         int length = content.length();
         String equipmentID=null;
         for(int i=0;i<length;i+=7) {
@@ -23,9 +26,15 @@ public class StringTest {
         }
     }
 
+    private void parseDouble() {
+        String langitude = "39.768069";
+        double l = Double.parseDouble(langitude);
+        System.out.println(l);
+    }
     @Test
     public void split() {
-        String text = "dx00001dx00002dx00003";
+        String text = "dx00001dx00002dx00003 ";
         stringSplitForIndex(text);
+        parseDouble();
     }
 }
