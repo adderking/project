@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
 
@@ -23,11 +24,13 @@ public class ImportMACInfo {
     private static final int CONTROL_POINT = 0;
     private static final int CONTROL_AREA = 1;
     private static final int CONTROL_WIFI_TASK = 0;
+    private static final String DATA_SOURCE_DIR = "D:\\DX\\datasource";
+    private static final String DATA_TARGET_DIR = "D:\\DX\\target";
     private Map<String, WifiEquipmentInfo> equipmentId2EquipmentInfoMap = new HashMap<String, WifiEquipmentInfo>();
     private Map<String, String> macAddress2macIdMap = new HashMap<>();
     private List<ControlTask> pointControlTask = new ArrayList<>();
     private List<ControlTask> areaControlTask = new ArrayList<>();
-    private static final String SELECT_BEGIN_CONTROL_TASKS_BY_CONTROL_TYPE = "SELECT ID, taskName, taskTarget, startTime, endTime, enqumentID, createTime, taskStatus, taskType, controlType FROM controltask WHERE taskStatus = "+ CONTROL_BEGIN +" AND controlType = ?";
+    private static final String SELECT_BEGIN_CONTROL_TASKS_BY_CONTROL_TYPE = "SELECT ID, taskName, taskTarget, startTime, endTime, enqumentID, createTime, taskStatus, taskType, controlType FROM controltask WHERE taskStatus = "+ CONTROL_BEGIN +" AND controlType = ? AND taskType = "+ CONTROL_WIFI_TASK +"";
     private static final String INSERT_MAC_TRACE_SQL = "INSERT INTO mactrace (primaryId, macId, equipmentId, equipmentLocation, startTime, endTime, latitude, langitude, createtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_CONTROL_TASK_STATUS_FROM_NOTBEGIN_TO_BEGIN_SQL = "UPDATE controltask SET taskStatus = " + CONTROL_BEGIN + " WHERE taskStatus = ? AND startTime < ?";
     private static final String UPDATE_CONTROL_TASK_STATUS_FROM_BEGIN_TO_FINISH_SQL = "UPDATE controltask SET taskStatus = " + CONTROL_FINISH + " WHERE taskStatus = ? AND endTime < ?";
@@ -36,6 +39,7 @@ public class ImportMACInfo {
         Connection conn = ConnectionHelper.createConnection();
         cacheEquipmentInfo(conn);
         cacheMacInfo(conn);
+        cacheControlTasks(conn);
         conn.close();
     }
 
@@ -87,11 +91,9 @@ public class ImportMACInfo {
         pst.close();
     }
 
-    public void cacheControlTasks() throws SQLException, ClassNotFoundException {
-        Connection conn = ConnectionHelper.createConnection();
+    public void cacheControlTasks(Connection conn) throws SQLException, ClassNotFoundException {
         cacheControlPointTasks(conn);
         cacheControlAreaTasks(conn);
-        conn.close();
     }
 
     public void cacheControlPointTasks(Connection conn) throws SQLException {
@@ -158,8 +160,8 @@ public class ImportMACInfo {
         return wifiEquipmentInfo;
     }
 
-    private JSONArray parseFile(String filePath) throws IOException, SQLException, ClassNotFoundException {
-        FileInputStream fis = new FileInputStream(new File(filePath));
+    private void parseFile(File file, String outPutFilePath) throws IOException, SQLException, ClassNotFoundException {
+        FileInputStream fis = new FileInputStream(file);
         byte[] bytes = new byte[fis.available()];
         fis.read(bytes);
         String rawData = new String(bytes);
@@ -176,7 +178,7 @@ public class ImportMACInfo {
         conn.commit();
         pst.close();
         conn.close();
-        return extractedFieldsArray;
+        writeToFile(outPutFilePath, extractedFieldsArray);
     }
 
     private void handleEachOriginMacTraceObj(PreparedStatement pst, JSONObject originMacTraceObj, JSONArray extractedFieldsArray) throws SQLException, ClassNotFoundException {
@@ -203,7 +205,7 @@ public class ImportMACInfo {
         pst.setString(3, extractedMacTraceObj.getString("equipmentId"));
         pst.setString(4, extractedMacTraceObj.getString("equipmentLocation"));
         pst.setTimestamp(5, new Timestamp(extractedMacTraceObj.getLong("startTime") * 1000));
-        pst.setTimestamp(6, new Timestamp(extractedMacTraceObj.getLong("endTime") * 1000));
+        pst.setTimestamp(6, new Timestamp((extractedMacTraceObj.getLong("endTime") == 0 ? 1 : extractedMacTraceObj.getLong("endTime")) * 1000));
         pst.setDouble(7, extractedMacTraceObj.getDouble("latitude"));
         pst.setDouble(8, extractedMacTraceObj.getDouble("langitude"));
         pst.setTimestamp(9, new Timestamp(new Date().getTime()));
@@ -222,7 +224,7 @@ public class ImportMACInfo {
         for (ControlTask controlTask : pointControlTask) {
             String controledMacAddress = controlTask.getTaskTarget();
             String controledEquipmentId = controlTask.getEnqumentID();
-            if (macAddress.equals(controledMacAddress) && equipmentId.equals(controledEquipmentId)) {
+            if (macAddress.equals(controledMacAddress) && controledEquipmentId.contains(equipmentId)) {
                 controlResults.add(new ControlResult(macTracePrimaryId, controlTask.getID()));
             }
         }
@@ -321,11 +323,54 @@ public class ImportMACInfo {
     }
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException {
-//        String filename = "D:\\01 系统资源\\Desktop\\样例数据\\20180125021009901_139_110115_723005104_001.log";
-//        ImportMACInfo importMACInfo = new ImportMACInfo();
-//        JSONArray jsonArray = importMACInfo.parseFile(filename);
-//        importMACInfo.writeToFile("D:\\text.txt", jsonArray);
-        System.out.println(new Timestamp(1516817383000l));
+        ImportMACInfo importMACInfo = new ImportMACInfo();
+        beginUpdateContorlTaskState();
+        startImportData();
+//        File file = new File("D:\\DX\\datasource\\20180125021009901_139_110115_723005104_001.log");
+//        file.renameTo(new File(file.getParent(), file.getName() + ".completed"));
+    }
+
+    private static void startImportData() throws SQLException, IOException, ClassNotFoundException {
+        while (true) {
+            File[] files = new File(DATA_SOURCE_DIR).listFiles();
+            for (File file : files) {
+                String fileName = file.getName();
+                if (!fileName.endsWith(".completed")) {
+                    String outPutFilePath = DATA_TARGET_DIR + File.separator + getRandomFileName() + ".log";
+                    ImportMACInfo importMACInfo = new ImportMACInfo();
+                    importMACInfo.parseFile(file, outPutFilePath);
+                    file.renameTo(new File(file.getParent(), fileName + ".completed"));
+                }
+            }
+        }
+    }
+
+    public static String getRandomFileName() {
+        SimpleDateFormat simpleDateFormat;
+        simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        Date date = new Date();
+        String str = simpleDateFormat.format(date);
+        return str;
+    }
+
+    private static void beginUpdateContorlTaskState() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (true) {
+                        updateControlTaskStatus();
+                        Thread.sleep(1000);
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
 }
