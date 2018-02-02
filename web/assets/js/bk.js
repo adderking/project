@@ -4,13 +4,13 @@
 /**
  * 全区布控
  */
-var basePath="<%=basePath%>";
-alert(basePath);
+var path = "";
 var limit =10;
 var titles = ['任务名称','任务目标','开始时间','结束时间','任务类型','布控类型','布控总数','任务状态','操作'];
 var key = ['taskName','taskTarget','startTime','endTime','taskType','controlType','totalCount','taskStatus'];
 function qqbkText(basePath,actionInfo,macInfo,mac,macHistoryInfo,flag,val){
     var url = basePath+"/"+actionInfo;
+    path = basePath;
     //生成 全区布控页面
     //先初始化地图
     $("#MacOrbit").text(macInfo);
@@ -162,7 +162,7 @@ function createTable(results,titles,keys,url){
             }
 
         }
-        html = html+'<td><a href="#" onclick="queryResult(\''+results.datas[k].ID+'\');">布控结果</a></tr>';
+        html = html+'<td><a href="#" onclick="queryResult(\''+results.datas[k].ID+'\',\''+results.datas[k].taskType+'\');">布控结果</a></tr>';
     }
     html = html+'<tr><td colspan="10"><div id="ampagination" style="float: right;margin-right: 10px;"></div></td></tr></tbody></table></section></div>';
 /*<tr><td>AAC</td><td>AUSTRALIAN AGRICULTURAL COMPANY LIMITED.</td>' +
@@ -226,24 +226,29 @@ function queryResult(id,taskType){
     //移除表单
     if(taskType=='0'){
         //生成车辆地图
-        queryBKOrbitView('getCarHistoryOrbit','车辆轨迹查询','车辆轨迹','车辆历史轨迹查询','1','车牌号码',id);
+        queryBKOrbitView('getCarBKOrbit','车辆布控','全区布控','车辆布控结果查看','0',id);
     }else if(taskType == '1'){
-        queryBKOrbitView('getCarHistoryOrbit','MAC轨迹查询','MAC轨迹','MAC历史轨迹查询','1','车牌号码',id);
+        queryBKOrbitView('getBKOrbit','MAC布控','全区布控','MAC布控结果查看','0',id);
     }
 
 }
 //查询实时轨迹
 //其他菜单调用方法
-function queryBKOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,val,id){
+function queryBKOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,id){
     //先初始化地图
     $("#MacOrbit").text(macInfo);
     $("#Mac").text(mac);
     $("#MacHistoryInfo").text(macHistoryInfo);
     $('#button').children().remove();
+    $('#button').append('<button type="button" class="btn btn-default" onclick="qqbkText(\''+path+'\',\'getQQBKPage\',\'布控、轨迹绑定\',\'车辆布控\',\'全区布控\',\'1\',\'车牌号码\');">返回</button>');
     $("#dp1").remove();
     $("#dp2").remove();
     if(flag=='1'){
         //先初始化一个地图
+        $('#button').children().remove();
+        if($('#button').children().length == 0){
+            $('#button').append('<button type="button" class="btn btn-default" onclick="qqbkText(\''+path+'\',\'getQQBKPage\',\'布控、轨迹绑定\',\'车辆布控\',\'全区布控\',\'1\',\'车牌号码\');">返回</button>');
+        }
         var map = new BMap.Map("mapContainer");
         var point = new BMap.Point(116.404,39.915);
         var marker = new BMap.Marker(point);  // 创建标注
@@ -256,24 +261,34 @@ function queryBKOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,val,id){
         //清空之前的数据
         $.ajax({
             type:"post",
-            url:basePath+"/orbit/"+actionInfo,
+            url:path.split("execute")[0]+"/orbit/"+actionInfo,
             //contentType:"application/json;charset=utf-8",
-            data:{mac:'0A-4B-5D-6E',startDate:"",endDate:""},//查询布控轨迹
+            data:{id:id},//查询布控轨迹
             dataType:"json",
             success:function(data){
-                if(data.enument.length>0&&data.orbit.length>0){
+                if(data.orbit.length>0){
                     //先移除地图
                     $("#mapContainer").remove();
                     //重新生成div
                     $("#paper-middle").append('<div id="mapContainer" style="width:100%;height:100%;"></div>')
                     var mapInfo = new BMap.Map("mapContainer");
-                    var pointInfo = new BMap.Point(data.enument[0].langitude, data.enument[0].latitude);
+                    var pointInfo = new BMap.Point(data.orbit[0].langitude, data.orbit[0].latitude);
                     mapInfo.centerAndZoom(pointInfo, 15);
                     mapInfo.clearOverlays();
                     mapInfo.enableScrollWheelZoom(true);
                     for(var i=0;i<data.enument.length;i++){
                         var pointVal = new BMap.Point(data.enument[i].langitude, data.enument[i].latitude);
-                        var markerInfo = new BMap.Marker(pointVal);  // 创建标注
+                        var myIcon;
+                        if(actionInfo.indexOf("Car")!=-1){
+                            myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/113equipment.png", new BMap.Size(23, 25), {
+
+                            });
+                        }else{
+                            myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/wifiequipment.png", new BMap.Size(23, 25), {
+
+                            });
+                        }
+                        var markerInfo = new BMap.Marker(pointVal,{icon: myIcon});  // 创建标注
                         markerInfo.setTitle(data.enument[i].equipmentLocation);
                         markerInfo.setAnimation(BMAP_ANIMATION_DROP); //跳动的动画
                         mapInfo.addOverlay(markerInfo);// 将标注添加到地图中
@@ -288,6 +303,7 @@ function queryBKOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,val,id){
                         //说明为车辆
                         showSSPoly(arrayList,mapInfo,data.orbit,'0');
                     }else{
+                        //否则为mac信息
                         showSSPoly(arrayList,mapInfo,data.orbit,'1');
                     }
 

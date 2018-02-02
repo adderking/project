@@ -41,4 +41,12 @@ public interface OrbitService {
      * @return
      */
     public List<Map<String,String>> getCarEquipementInfo(String plate,String startDate,String endDate);
+
+    /**
+     * 查询全区布控结果表
+     * @param id
+     * @return
+     */
+    public List<Map<String,String>> getCarBKOrbit(String id);
+    public List<Map<String, String>> getBKOrbit(String id);
 }
