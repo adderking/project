@@ -30,7 +30,7 @@ public class OrbitServiceImpl implements OrbitService{
                         "on m.equipmentId = w.equipmentId where \n" +
                         "m.startTime>='"+startDate+"'\n" +
                         "and m.endTime<='"+endDate+"'\n" +
-                        " and i.macAddress='"+mac+"' ";
+                        " and i.macAddress='"+mac+"' order by startTime asc";
                 List<Map<String,String>> list = this.orbitDao.queryList(sql);
                 return list;
             }else{
@@ -40,7 +40,7 @@ public class OrbitServiceImpl implements OrbitService{
                         "on m.equipmentId = w.equipmentId where \n" +
                         "m.startTime>='"+ DateUtils.formatDate(new Date(),"yyyy-MM-dd")+" 00:00:00'\n" +
                         "and m.endTime<='"+DateUtils.formatDate(new Date(),"yyyy-MM-dd")+" 23:59:59'\n" +
-                        " and i.macAddress='"+mac+"' ";
+                        " and i.macAddress='"+mac+"' order by startTime asc";
                 List<Map<String,String>> list = this.orbitDao.queryList(sql);
                 return list;
             }
@@ -87,7 +87,7 @@ public class OrbitServiceImpl implements OrbitService{
                         "videoEquipmentInfo v on \n" +
                         "v.equipmentId=c.equipmentId\n" +
                         "where c.startTime>='"+startDate+"' and c.endTime<='"+endDate+"' \n" +
-                        "and i.carPlate='"+plate+"'";
+                        "and i.carPlate='"+plate+"' order by startTime asc";
                 List<Map<String,String>> list = this.orbitDao.queryList(sql);
                 return list;
             }else{
@@ -97,7 +97,7 @@ public class OrbitServiceImpl implements OrbitService{
                         "v.equipmentId=c.equipmentId\n" +
                         "where c.startTime>='"+ DateUtils.formatDate(new Date(),"yyyy-MM-dd")+" 00:00:00' " +
                         "and c.endTime<='"+ DateUtils.formatDate(new Date(),"yyyy-MM-dd")+" 23:59:59' \n" +
-                        "and i.carPlate='"+plate+"'";
+                        "and i.carPlate='"+plate+"' order by startTime asc";
                 List<Map<String,String>> list = this.orbitDao.queryList(sql);
                 return list;
             }
@@ -155,6 +155,20 @@ public class OrbitServiceImpl implements OrbitService{
                     " where t.ID=? ";
             List<Map<String,String>> list = new ArrayList<>();
             list = this.orbitDao.queryList(sql,id);
+            return list;
+        }
+        return new ArrayList<>();
+    }
+    @Override
+    public List<Map<String, String>> getAllEqumentInfo(String title) {
+        if(!StringUtils.isEmpty(title)&&"0".equals(title)){
+            //车辆设备坐标
+            String sql = "select * from videoEquipmentInfo a";
+            List<Map<String,String>> list = this.orbitDao.queryList(sql);
+            return list;
+        }else if(!StringUtils.isEmpty(title)&&"1".equals(title)){
+            String sql = "select * from wifiEquipmentInfo w";
+            List<Map<String,String>> list = this.orbitDao.queryList(sql);
             return list;
         }
         return new ArrayList<>();

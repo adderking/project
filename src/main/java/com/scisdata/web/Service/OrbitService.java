@@ -49,4 +49,5 @@ public interface OrbitService {
      */
     public List<Map<String,String>> getCarBKOrbit(String id);
     public List<Map<String, String>> getBKOrbit(String id);
+    public List<Map<String,String>> getAllEqumentInfo(String title);
 }

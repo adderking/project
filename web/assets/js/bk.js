@@ -18,6 +18,8 @@ function qqbkText(basePath,actionInfo,macInfo,mac,macHistoryInfo,flag,val){
     $("#MacHistoryInfo").text(macHistoryInfo);
     $("#dp1").remove();
     $("#dp2").remove();
+    $("#dp1label").remove();
+    $("#dp2label").remove();
     $("#macAddress").remove();
     $("#button").children().remove();
     $("#mapContainer").children().remove();
@@ -101,22 +103,7 @@ function qqbkTJ(project){
 /**
  * 新建任务
  */
-function qqbkCreate(){
 
-}
-function ddbk(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
-    //生成 全区布控页面
-    //先初始化地图
-    $("#MacOrbit").text(macInfo);
-    $("#Mac").text(mac);
-    $("#MacHistoryInfo").text(macHistoryInfo);
-    $("#dp1").remove();
-    $("#dp2").remove();
-    $("#macAddress").remove();
-    $("#button").children().remove();
-    $("#mapContainer").children().remove();
-    $("#button").append('<button type="button" class="btn btn-default" onclick="");">新建</button>');
-}
 //自定义表格
 function createTable(results,titles,keys,url){
     $("#tableId tr:not(:first):not(:last)").remove();
@@ -243,6 +230,8 @@ function queryBKOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,id){
     $('#button').append('<button type="button" class="btn btn-default" onclick="qqbkText(\''+path+'\',\'getQQBKPage\',\'布控、轨迹绑定\',\'车辆布控\',\'全区布控\',\'1\',\'车牌号码\');">返回</button>');
     $("#dp1").remove();
     $("#dp2").remove();
+    $("#dp1label").remove();
+    $("#dp2label").remove();
     if(flag=='1'){
         //先初始化一个地图
         $('#button').children().remove();
@@ -317,4 +306,96 @@ function queryBKOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,id){
         });
     }
 
+}
+/**
+ * 定点布控
+ * @param actionInfo
+ * @param macInfo
+ * @param mac
+ * @param macHistoryInfo
+ * @param flag
+ * @param val
+ */
+function ddbk(path,actionInfo,macInfo,mac,macHistoryInfo){
+    //生成 全区布控页面
+    //先初始化地图
+    $("#MacOrbit").text(macInfo);
+    $("#Mac").text(mac);
+    $("#MacHistoryInfo").text(macHistoryInfo);
+    $("#dp1label").remove();
+    $("#dp2label").remove();
+    $("#dp1").remove();
+    $("#dp2").remove();
+    $("#macAddress").remove();
+    $("#button").children().remove();
+    $("#mapContainer").children().remove();
+    //生成设备地图
+    if($('#button').children().length == 0){
+        $('#button').append('<button type="button" class="btn btn-default" onclick="qqbkText(\''+path+'\',\'getQQBKPage\',\'布控、轨迹绑定\',\'车辆布控\',\'全区布控\',\'1\',\'车牌号码\');">保存</button>');
+    }
+    //设置单选框
+    if($("#dp1").length == 0){
+        //设置时间框
+        $("#startDate").append('<label id="dp1label"><input style="border-radius:15px;display: inline;width:30px;" id="dp1" type="radio"  checked="checked" name="title" value="0" >车辆</label>');
+    }
+    if($("#dp2").length == 0){
+        //设置时间框
+        $("#endDate").append('<label id="dp2label"><input style="border-radius:15px;display: inline;width:30px;" id="dp2" type="radio"  value="1" name="title"  >MAC地址</label>');
+    }
+    //获取选中的单选框信息
+    var title = $("input[name='title']:checked").val();
+    $.ajax({
+        type:"post",
+        url:path+"/"+actionInfo,
+        data:{title:title},
+        dataType:"json",
+        success:function(data){
+            if(data.orbit.length>0){
+                //先移除地图
+                $("#mapContainer").remove();
+                //重新生成div
+                $("#paper-middle").append('<div id="mapContainer" style="width:100%;height:100%;"></div>')
+                var mapInfo = new BMap.Map("mapContainer");
+                var pointInfo = new BMap.Point(data.orbit[0].langitude, data.orbit[0].latitude);
+                mapInfo.centerAndZoom(pointInfo, 15);
+                mapInfo.clearOverlays();
+                mapInfo.enableScrollWheelZoom(true);
+                for(var i=0;i<data.enument.length;i++){
+                    var pointVal = new BMap.Point(data.enument[i].langitude, data.enument[i].latitude);
+                    var myIcon;
+                    if(title=='0'){
+                        myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/113equipment.png", new BMap.Size(23, 25), {
+
+                        });
+                    }else{
+                        myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/wifiequipment.png", new BMap.Size(23, 25), {
+
+                        });
+                    }
+                    var markerInfo = new BMap.Marker(pointVal,{icon: myIcon});  // 创建标注
+                    markerInfo.setTitle(data.enument[i].equipmentLocation);
+                    markerInfo.setAnimation(BMAP_ANIMATION_DROP); //跳动的动画
+                    mapInfo.addOverlay(markerInfo);// 将标注添加到地图中
+                }
+                var arrayList = [] ;
+                var points=[];
+                for(var t=0;t<data.orbit.length;t++) {
+                    var p = new BMap.Point(data.orbit[t].langitude, data.orbit[t].latitude);
+                    arrayList.push(p);
+                }
+                if(title=='0'){
+                    //说明为车辆
+                    showSSPoly(arrayList,mapInfo,data.orbit,'0');
+                }else{
+                    //否则为mac信息
+                    showSSPoly(arrayList,mapInfo,data.orbit,'1');
+                }
+
+
+            }
+        },
+        error:function(data){
+            alert("获取信息失败");
+        }
+    });
 }
