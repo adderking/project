@@ -279,7 +279,7 @@
             </a>
           </li>
           <li>
-            <a class="tooltip-tip ajax-load" href="#" onclick="queryOrbitView('getHistoryOrbit','MAC轨迹查询','MAC轨迹','MAC历史轨迹查询','1','MAC地址');" title="MAC实时轨迹查询">
+            <a class="tooltip-tip ajax-load" href="#" onclick="queryOrbitView('getHistoryOrbit','MAC轨迹查询','MAC轨迹','MAC实时轨迹查询','1','MAC地址');" title="MAC实时轨迹查询">
               <i class="icon-feed"></i>
               <span>MAC实时轨迹查询</span>
 
@@ -305,7 +305,7 @@
             </a>
           </li>
           <li>
-            <a class="tooltip-tip ajax-load" href="#" onclick="queryOrbitView('getCarHistoryOrbit','车辆轨迹查询','车辆轨迹','车辆历史轨迹查询','1','车牌号码');" title="车辆实时轨迹查询">
+            <a class="tooltip-tip ajax-load" href="#" onclick="queryOrbitView('getCarHistoryOrbit','车辆轨迹查询','车辆轨迹','车辆实时轨迹查询','1','车牌号码');" title="车辆实时轨迹查询">
               <i class="icon-feed"></i>
               <span>车辆实时轨迹查询</span>
             </a>
@@ -358,19 +358,29 @@
             </ul>--%>
           </li>
           <li>
-            <a class="tooltip-tip" href="#" title="Form">
+            <a class="tooltip-tip" href="#" onclick="ddbk('<%=basePath%>/orbit/','getDDBK','布控、轨迹绑定','车辆布控','定点布控')" title="Form">
               <i class="icon-lock"></i>
               <span>定点布控</span>
+            </a>
+          </li>
+
+        </ul>
+        <ul class="topnav menu-left-nest">
+          <li>
+            <a href="#" style="border-left:0px solid!important;" class="title-menu-left">
+
+              <span class="doc"></span>
+              <%--<i data-toggle="tooltip" class="entypo-cog pull-right config-wrap"></i>--%>
+
             </a>
           </li>
           <li>
             <a class="tooltip-tip" href="#" title="Tables">
               <i class="icon-media-shuffle"></i>
-              <span>MAC/车辆绑定</span>
+              <span>车辆绑定</span>
             </a>
           </li>
         </ul>
-
 
       </div>
     </div>
@@ -543,6 +553,8 @@ function queryView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
     $("#macAddress").val("");
     $("#dp1").remove();
     $("#dp2").remove();
+    $("#dp1label").remove();
+    $("#dp2label").remove();
     $("#macAddress").remove();
     $('#button').children().remove();
     if($("#dp1").length == 0){
@@ -721,6 +733,8 @@ function queryOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
   $('#button').children().remove();
   $("#dp1").remove();
   $("#dp2").remove();
+  $("#dp1label").remove();
+  $("#dp2label").remove();
   $('#button').append('<button type="button" class="btn btn-default" onclick="queryOrbitView(\''+actionInfo+'\',\''+macInfo+'\',\''+mac+'\',\''+macHistoryInfo+'\',\'0\',\''+val+'\');">查询</button>');
   if(flag=='1'){
     //清空输入的参数

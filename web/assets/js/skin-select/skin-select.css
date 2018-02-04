@@ -166,3 +166,6 @@
 .component:before {
     content:"车辆布控" !important;
 }
+.doc:before {
+    content:"人员档案" !important;
+}

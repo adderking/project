@@ -91,4 +91,19 @@ public class OrbitController extends BaseController{
         map.put("enument",new ArrayList<Map<String, String>>());
         return map;
     }
+    /**
+     * 定点布控
+     * @param title
+     * @return
+     */
+    @RequestMapping(value = "/getDDBK")
+    @ResponseBody
+    public Map<String,List<Map<String,String>>> getDDBK(String title){
+        //获取设备信息 车辆或者 MAC地址
+        List<Map<String,String>> list = this.orbitService.getAllEqumentInfo(title);
+        Map<String,List<Map<String,String>>>  map = new HashMap<>();
+        map.put("orbit",new ArrayList<Map<String, String>>());
+        map.put("enument",list);
+        return map;
+    }
 }
