@@ -17,6 +17,25 @@ public class VideoEquipmentInfo implements Serializable {
     public String equipmentLocation;
     public double latitude;
     public double langitude;
+    public double blatitude;
+    public double blangitude;
+
+    public double getBlatitude() {
+        return blatitude;
+    }
+
+    public void setBlatitude(double blatitude) {
+        this.blatitude = blatitude;
+    }
+
+    public double getBlangitude() {
+        return blangitude;
+    }
+
+    public void setBlangitude(double blangitude) {
+        this.blangitude = blangitude;
+    }
+
     public String direction;
     public int channel;
     public String area;

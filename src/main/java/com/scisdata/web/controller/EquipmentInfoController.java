@@ -24,6 +24,11 @@ public class EquipmentInfoController {
     @Autowired
     private WifiEquipmentInfoService wifiEquipmentInfoService;
 
+    @RequestMapping(path="/equipmentInfo")
+    public String getUrl() {
+        return "view/login/equipmentInfo";
+    }
+
     @RequestMapping(path="/videoEquipLocaiton",method = RequestMethod.GET,produces = "applicaiton/json;charset=UTF-8")
     @ResponseBody
     public String getVideoEquipmentLocation() {
