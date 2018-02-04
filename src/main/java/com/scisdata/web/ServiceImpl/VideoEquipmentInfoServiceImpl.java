@@ -26,7 +26,7 @@ public class VideoEquipmentInfoServiceImpl implements VideoEquipmentInfoService 
 
     @Override
     public List<Map<String,String>> queryCoordinateAndLocationOfAll() {
-        String sql = "select blatitude,blangitude,equipmentLocation,equipmentId from videoEquipmentInfo";
+        String sql = "select latitude,langitude,equipmentLocation,equipmentId from videoEquipmentInfo";
         List<Map<String,String>> videoEquipmentInfoList = videoEquipmentInfoDao.queryList(sql);
         return videoEquipmentInfoList;
     }

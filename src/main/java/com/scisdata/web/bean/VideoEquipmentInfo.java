@@ -15,26 +15,10 @@ public class VideoEquipmentInfo implements Serializable {
     private long primaryId;
     public String equipmentId;
     public String equipmentLocation;
+    public double originLatitude;
+    public double originLangitude;
     public double latitude;
     public double langitude;
-    public double blatitude;
-    public double blangitude;
-
-    public double getBlatitude() {
-        return blatitude;
-    }
-
-    public void setBlatitude(double blatitude) {
-        this.blatitude = blatitude;
-    }
-
-    public double getBlangitude() {
-        return blangitude;
-    }
-
-    public void setBlangitude(double blangitude) {
-        this.blangitude = blangitude;
-    }
 
     public String direction;
     public int channel;
@@ -62,6 +46,22 @@ public class VideoEquipmentInfo implements Serializable {
 
     public void setEquipmentLocation(String equipmentLocation) {
         this.equipmentLocation = equipmentLocation;
+    }
+
+    public double getOriginLatitude() {
+        return originLatitude;
+    }
+
+    public void setOriginLatitude(double originLatitude) {
+        this.originLatitude = originLatitude;
+    }
+
+    public double getOriginLangitude() {
+        return originLangitude;
+    }
+
+    public void setOriginLangitude(double originLangitude) {
+        this.originLangitude = originLangitude;
     }
 
     public double getLatitude() {

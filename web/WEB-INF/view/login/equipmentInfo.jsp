@@ -10,8 +10,8 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <script type="application/javascript" src="<%=path%>/assets/js/jquery.js"></script>
-    <%--<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=nkQsVOzZVYGf1IBz6Bz7BgW8sLjLzCfb"></script>--%>
-    <script type="text/javascript" src="<%=path%>/heatMap/js/apiv2.0.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=nkQsVOzZVYGf1IBz6Bz7BgW8sLjLzCfb"></script>
+    <%--<script type="text/javascript" src="<%=path%>/heatMap/js/apiv2.0.min.js"></script>--%>
     <style type="text/css">
         body, html,#mapContainer {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
     </style>
@@ -46,12 +46,12 @@
         dataType:"json",
         success:function(data){
             for(var i = 0 ;i<data.length;i++) {
-                var point = new BMap.Point(data[i].blangitude, data[i].blatitude);
+                var point = new BMap.Point(data[i].langitude, data[i].latitude);
                 var content = data[i].equipmentId + "," + data[i].equipmentLocation;
                 var label = new BMap.Label(content, {offset: new BMap.Size(20, -10)});
                 var icon = new BMap.Icon("heatMap/images/113equipment.png",new BMap.Size(19,25));
                 var mark = new BMap.Marker(point,{icon:icon});
-                // mark.setLabel(label);
+                mark.setLabel(label);
                 map.addOverlay(mark);
                 // marker.addEventListener("click", clickHandler(content,point));
              }

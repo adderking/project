@@ -102,16 +102,16 @@ public class ImportVideoEquipmentInfo {
                 videoEquipmentInfo.setEquipmentId(equipmentId);
                 videoEquipmentInfo.setEquipmentLocation(equipmentLocation);
                 videoEquipmentInfo.setDirection(direction);
-                videoEquipmentInfo.setLatitude(latitude);
-                videoEquipmentInfo.setLangitude(langitude);
+                videoEquipmentInfo.setOriginLatitude(latitude);
+                videoEquipmentInfo.setOriginLangitude(langitude);
                 videoEquipmentInfoDao.insert(videoEquipmentInfo);
             }
         }else{
             VideoEquipmentInfo videoEquipmentInfo = new VideoEquipmentInfo();
             videoEquipmentInfo.setEquipmentLocation(equipmentLocation);
             videoEquipmentInfo.setDirection(direction);
-            videoEquipmentInfo.setLatitude(latitude);
-            videoEquipmentInfo.setLangitude(langitude);
+            videoEquipmentInfo.setOriginLatitude(latitude);
+            videoEquipmentInfo.setOriginLangitude(langitude);
             videoEquipmentInfo.setChannel(channel);
             videoEquipmentInfoDao.insert(videoEquipmentInfo);
         }
