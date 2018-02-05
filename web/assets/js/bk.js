@@ -316,6 +316,7 @@ function queryBKOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,id){
  * @param flag
  * @param val
  */
+/*
 function ddbk(path,actionInfo,macInfo,mac,macHistoryInfo){
     //生成 全区布控页面
     //先初始化地图
@@ -398,4 +399,4 @@ function ddbk(path,actionInfo,macInfo,mac,macHistoryInfo){
             alert("获取信息失败");
         }
     });
-}
+}*/
