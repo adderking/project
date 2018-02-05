@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.scisdata.web.bean.ControlResult;
 import com.scisdata.web.bean.ControlTask;
 import com.scisdata.web.bean.WifiEquipmentInfo;
-import com.wsh.tools.utils.ConnectionHelper;
+import com.wsh.tools.utils.ConnectionUtil;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -36,7 +36,7 @@ public class ImportMACInfo {
     private static final String UPDATE_CONTROL_TASK_STATUS_FROM_BEGIN_TO_FINISH_SQL = "UPDATE controltask SET taskStatus = " + CONTROL_FINISH + " WHERE taskStatus = ? AND endTime < ?";
 
     public ImportMACInfo() throws SQLException, ClassNotFoundException {
-        Connection conn = ConnectionHelper.createConnection();
+        Connection conn = ConnectionUtil.getInstance().getConnection();
         cacheEquipmentInfo(conn);
         cacheMacInfo(conn);
         cacheControlTasks(conn);
@@ -44,7 +44,7 @@ public class ImportMACInfo {
     }
 
     private static void updateControlTaskStatus() throws SQLException, ClassNotFoundException {
-        Connection conn = ConnectionHelper.createConnection();
+        Connection conn = ConnectionUtil.getInstance().getConnection();
         updateTaskStatusFromNotBeginToBegin(conn);
         updateTaskStatusFromBeginToFinish(conn);
         conn.close();
@@ -167,7 +167,7 @@ public class ImportMACInfo {
         String rawData = new String(bytes);
         fis.close();
         JSONArray jsonArray = JSONArray.parseArray(rawData);
-        Connection conn = ConnectionHelper.createConnection();
+        Connection conn = ConnectionUtil.getInstance().getConnection();
         conn.setAutoCommit(false);
         PreparedStatement pst = conn.prepareStatement(INSERT_MAC_TRACE_SQL);
         JSONArray extractedFieldsArray = new JSONArray();
@@ -240,7 +240,7 @@ public class ImportMACInfo {
     }
 
     private void insertControlResults(List<ControlResult> controlResults) throws SQLException, ClassNotFoundException {
-        Connection conn = ConnectionHelper.createConnection();
+        Connection conn = ConnectionUtil.getInstance().getConnection();
         conn.setAutoCommit(false);
         String sql = "INSERT INTO controlresult (traceId, taskId) VALUES (?, ?)";
         PreparedStatement pst = conn.prepareStatement(sql);
@@ -260,7 +260,7 @@ public class ImportMACInfo {
 
     private String insertMacInfo(String macAddress) throws SQLException, ClassNotFoundException {
         String macId = UUID.randomUUID().toString();
-        Connection conn = ConnectionHelper.createConnection();
+        Connection conn = ConnectionUtil.getInstance().getConnection();
         String sql = "INSERT INTO macinfo (primaryId, macAddress) VALUES (?, ?)";
         PreparedStatement pst = conn.prepareStatement(sql);
         pst.setString(1, macId);
