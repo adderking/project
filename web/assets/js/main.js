@@ -288,6 +288,7 @@ head.js("../assets/js/clock/jquery.clock.js", function() {
 
 
 //------------------------------------------------------------- 
+/*
 
 head.js("../assets/js/gage/raphael.2.1.0.min.js", "../assets/js/gage/justgage.js", function() {
 
@@ -314,4 +315,4 @@ head.js("../assets/js/gage/raphael.2.1.0.min.js", "../assets/js/gage/justgage.js
 
 
 
-});
+});*/
