@@ -7,8 +7,8 @@ import java.util.Date;
  * Created by fangshilei on 18/1/26.
  */
 public class MacTrace implements Serializable {
-    private long primaryId;
-    private long macId;
+    private String primaryId;
+    private String macId;
     private String equipmentId;
     private String equipmentLocation;
     private Date startTime;
@@ -19,19 +19,19 @@ public class MacTrace implements Serializable {
     private double equipmentLatitude;
     private double equipmentLangitude;
 
-    public long getPrimaryId() {
+    public String getPrimaryId() {
         return primaryId;
     }
 
-    public void setPrimaryId(long primaryId) {
+    public void setPrimaryId(String primaryId) {
         this.primaryId = primaryId;
     }
 
-    public long getMacId() {
+    public String getMacId() {
         return macId;
     }
 
-    public void setMacId(long macId) {
+    public void setMacId(String macId) {
         this.macId = macId;
     }
 
