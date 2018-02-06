@@ -246,6 +246,9 @@ function queryBKOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,id){
         map.enableScrollWheelZoom(true);
         map.addOverlay(marker);// 将标注添加到地图中
         map.centerAndZoom(point,15);
+        map.addControl(new BMap.NavigationControl());
+        map.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));
+        map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}));
     }else{
         //清空之前的数据
         $.ajax({
@@ -282,6 +285,9 @@ function queryBKOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,id){
                         markerInfo.setAnimation(BMAP_ANIMATION_DROP); //跳动的动画
                         mapInfo.addOverlay(markerInfo);// 将标注添加到地图中
                     }
+                    mapInfo.addControl(new BMap.NavigationControl());
+                    mapInfo.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));
+                    mapInfo.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}));
                     var arrayList = [] ;
                     var points=[];
                     for(var t=0;t<data.orbit.length;t++) {
@@ -316,8 +322,8 @@ function queryBKOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,id){
  * @param flag
  * @param val
  */
-/*
-function ddbk(path,actionInfo,macInfo,mac,macHistoryInfo){
+
+function ddbk(path,actionInfo,macInfo,mac,macHistoryInfo,urlPath,val){
     //生成 全区布控页面
     //先初始化地图
     $("#MacOrbit").text(macInfo);
@@ -337,47 +343,58 @@ function ddbk(path,actionInfo,macInfo,mac,macHistoryInfo){
     //设置单选框
     if($("#dp1").length == 0){
         //设置时间框
-        $("#startDate").append('<label id="dp1label"><input style="border-radius:15px;display: inline;width:30px;" id="dp1" type="radio"  checked="checked" name="title" value="0" >车辆</label>');
+        $("#startDate").append('<label id="dp1label"><input style="border-radius:15px;display: inline;width:30px;" id="dp1" type="radio" checked="checked" name="title" value="0" >车辆</label>');
     }
     if($("#dp2").length == 0){
         //设置时间框
-        $("#endDate").append('<label id="dp2label"><input style="border-radius:15px;display: inline;width:30px;" id="dp2" type="radio"  value="1" name="title"  >MAC地址</label>');
+        $("#endDate").append('<label id="dp2label"><input style="border-radius:15px;display: inline;width:30px;" id="dp2" type="radio"  value="1" name="title" >MAC地址</label>');
     }
-    //获取选中的单选框信息
-    var title = $("input[name='title']:checked").val();
+    var title;
+    if(val!='0'&&val!='1'){
+        //获取选中的单选框信息
+        title = $("input[name='title']:checked").val();
+        $(":radio").click(function(){
+            ddbk1(path,actionInfo,macInfo,mac,macHistoryInfo,urlPath,$(this).val());
+        });
+    }else{
+        title = val;
+    }
+
     $.ajax({
         type:"post",
         url:path+"/"+actionInfo,
         data:{title:title},
         dataType:"json",
         success:function(data){
-            if(data.orbit.length>0){
+            if(data.enument.length>0){
                 //先移除地图
                 $("#mapContainer").remove();
                 //重新生成div
                 $("#paper-middle").append('<div id="mapContainer" style="width:100%;height:100%;"></div>')
                 var mapInfo = new BMap.Map("mapContainer");
-                var pointInfo = new BMap.Point(data.orbit[0].langitude, data.orbit[0].latitude);
-                mapInfo.centerAndZoom(pointInfo, 15);
+                var pointInfo = new BMap.Point(data.enument[0].langitude, data.enument[0].latitude);
                 mapInfo.clearOverlays();
                 mapInfo.enableScrollWheelZoom(true);
                 for(var i=0;i<data.enument.length;i++){
                     var pointVal = new BMap.Point(data.enument[i].langitude, data.enument[i].latitude);
                     var myIcon;
                     if(title=='0'){
-                        myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/113equipment.png", new BMap.Size(23, 25), {
+                        myIcon = new BMap.Icon(urlPath+"/heatMap/images/113equipment.png", new BMap.Size(23, 25), {
 
                         });
                     }else{
-                        myIcon = new BMap.Icon("<%=basePath%>/heatMap/images/wifiequipment.png", new BMap.Size(23, 25), {
+                        myIcon = new BMap.Icon(urlPath+"/heatMap/images/wifiequipment.png", new BMap.Size(23, 25), {
 
                         });
                     }
                     var markerInfo = new BMap.Marker(pointVal,{icon: myIcon});  // 创建标注
                     markerInfo.setTitle(data.enument[i].equipmentLocation);
-                    markerInfo.setAnimation(BMAP_ANIMATION_DROP); //跳动的动画
                     mapInfo.addOverlay(markerInfo);// 将标注添加到地图中
                 }
+                mapInfo.addControl(new BMap.NavigationControl());
+                mapInfo.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));
+                mapInfo.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}));
+                mapInfo.centerAndZoom(pointInfo, 15);
                 var arrayList = [] ;
                 var points=[];
                 for(var t=0;t<data.orbit.length;t++) {
@@ -399,4 +416,62 @@ function ddbk(path,actionInfo,macInfo,mac,macHistoryInfo){
             alert("获取信息失败");
         }
     });
-}*/
+}
+function ddbk1(path,actionInfo,macInfo,mac,macHistoryInfo,urlPath,val){
+    $.ajax({
+        type:"post",
+        url:path+"/"+actionInfo,
+        data:{title:val},
+        dataType:"json",
+        success:function(data){
+            if(data.enument.length>0){
+                //先移除地图
+                $("#mapContainer").remove();
+                //重新生成div
+                $("#paper-middle").append('<div id="mapContainer" style="width:100%;height:100%;"></div>')
+                var mapInfo = new BMap.Map("mapContainer");
+                var pointInfo = new BMap.Point(data.enument[0].langitude, data.enument[0].latitude);
+                mapInfo.clearOverlays();
+                mapInfo.enableScrollWheelZoom(true);
+                for(var i=0;i<data.enument.length;i++){
+                    var pointVal = new BMap.Point(data.enument[i].langitude, data.enument[i].latitude);
+                    var myIcon;
+                    if(val=='0'){
+                        myIcon = new BMap.Icon(urlPath+"/heatMap/images/113equipment.png", new BMap.Size(23, 25), {
+
+                        });
+                    }else{
+                        myIcon = new BMap.Icon(urlPath+"/heatMap/images/wifiequipment.png", new BMap.Size(23, 25), {
+
+                        });
+                    }
+                    var markerInfo = new BMap.Marker(pointVal,{icon: myIcon});  // 创建标注
+                    markerInfo.setTitle(data.enument[i].equipmentLocation);
+                    mapInfo.addOverlay(markerInfo);// 将标注添加到地图中
+                }
+                mapInfo.addControl(new BMap.NavigationControl());
+                mapInfo.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));
+                mapInfo.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}));
+                mapInfo.centerAndZoom(pointInfo, 15);
+                var arrayList = [] ;
+                var points=[];
+                for(var t=0;t<data.orbit.length;t++) {
+                    var p = new BMap.Point(data.orbit[t].langitude, data.orbit[t].latitude);
+                    arrayList.push(p);
+                }
+                if(title=='0'){
+                    //说明为车辆
+                    showSSPoly(arrayList,mapInfo,data.orbit,'0');
+                }else{
+                    //否则为mac信息
+                    showSSPoly(arrayList,mapInfo,data.orbit,'1');
+                }
+
+
+            }
+        },
+        error:function(data){
+            alert("获取信息失败");
+        }
+    });
+}

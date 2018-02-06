@@ -24,10 +24,6 @@
   <link rel="stylesheet" href="<%=path%>/assets/css/loader-style.css">
   <link rel="stylesheet" href="<%=path%>/assets/css/bootstrap.css">
   <link rel="stylesheet" href="<%=path%>/assets/js/datepicker/datepicker.css">
- <%-- <link rel="stylesheet" href="<%=path%>/assets/js/datepicker/bootstrap-datetimepicker.css">--%>
-  <%--<link rel="stylesheet" type="text/css" href="<%=path%>/assets/js/progress-bar/number-pb.css?version=<%=System.currentTimeMillis()%>">--%>
-<%--  <link href="<%=path%>/page/css/amazeui.flat.css?version=<%=System.currentTimeMillis()%>" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="<%=path%>/page/css/zzsc-demo.css?version=<%=System.currentTimeMillis()%>">--%>
   <link rel="stylesheet" href="<%=path%>/page/dist/css/am-pagination.css?version=<%=System.currentTimeMillis()%>">
   <style>
 
@@ -144,13 +140,20 @@
 
     }
   </style>
+  <!--  END OF PAPER WRAP -->
 
-
-
-  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-  <!--[if lt IE 9]>
-  <![endif]-->
-  <!-- Fav and touch icons -->
+  <!-- END OF RIGHT SLIDER CONTENT-->
+  <script type="text/javascript" src="<%=path%>/offlinemap/jquery.js?version=<%=System.currentTimeMillis()%>"></script>
+  <script type="text/javascript" src="<%=path%>/assets/js/bootstrap.js?version=<%=System.currentTimeMillis()%>"></script>
+  <script type="text/javascript" src="<%=path%>/assets/js/load.js?version=<%=System.currentTimeMillis()%>"></script>
+  <script type="text/javascript" src="<%=path%>/assets/js/main.js?version=<%=System.currentTimeMillis()%>"></script>
+  <script type="text/javascript" src="<%=path%>/offlinemap/map_load.js"></script>
+  <script type="text/javascript" src="<%=path%>/assets/js/app.js?version=<%=System.currentTimeMillis()%>"></script>
+  <script type="text/javascript" src="<%=path%>/assets/js/datepicker/bootstrap-datepicker.js?version=<%=System.currentTimeMillis()%>"></script>
+  <script type="text/javascript" src="<%=path%>/assets/js/bk.js?version=<%=System.currentTimeMillis()%>"></script>
+  <script type="text/javascript" src="<%=path%>/assets/js/timepicker/bootstrap-timepicker.js?version=<%=System.currentTimeMillis()%>"></script>
+  <script type="text/javascript" src="<%=path%>/assets/js/datepicker/bootstrap-datetimepicker.js?version=<%=System.currentTimeMillis()%>"></script>
+  <script type="text/javascript" src="<%=path%>/page/dist/js/am-pagination.js?version=<%=System.currentTimeMillis()%>"></script>
   <link rel="shortcut icon" href="<%=path%>/assets/ico/minus.png?version=<%=System.currentTimeMillis()%>">
 </head>
 
@@ -212,7 +215,7 @@
       <ul style="margin-right:0;" class="nav navbar-nav navbar-right">
         <li>
           <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-            <img alt="" class="admin-pic img-circle" src="http://api.randomuser.me/portraits/thumb/men/10.jpg?version=<%=System.currentTimeMillis()%>">Hi, 方夏 <b class="caret"></b>
+            <img alt="" class="admin-pic img-circle" src="">Hi, 方夏 <b class="caret"></b>
           </a>
         </li>
       </ul>
@@ -348,7 +351,7 @@
             </ul>--%>
           </li>
           <li>
-            <a class="tooltip-tip" href="#" onclick="ddbk('<%=basePath%>/orbit/','getDDBK','布控、轨迹绑定','车辆布控','定点布控')" title="Form">
+            <a class="tooltip-tip" href="#" onclick="ddbk('<%=basePath%>/orbit/','getDDBK','布控、轨迹绑定','车辆布控','定点布控','<%=basePath%>');" title="Form">
               <i class="icon-lock"></i>
               <span>定点布控</span>
             </a>
@@ -468,19 +471,6 @@
     </div>
   </div>
 </div>
-<!--  END OF PAPER WRAP -->
-
-<!-- END OF RIGHT SLIDER CONTENT-->
-<script type="text/javascript" src="<%=path%>/assets/js/jquery.js?version=<%=System.currentTimeMillis()%>"></script>
-<script type="text/javascript" src="<%=path%>/assets/js/bootstrap.js?version=<%=System.currentTimeMillis()%>"></script>
-<script type="text/javascript" src="<%=path%>/assets/js/load.js?version=<%=System.currentTimeMillis()%>"></script>
-<script type="text/javascript" src="<%=path%>/assets/js/main.js?version=<%=System.currentTimeMillis()%>"></script>
-<script type="text/javascript" src="<%=path%>/heatMap/js/apiv2.0.min.js?version=<%=System.currentTimeMillis()%>"></script>
-<script type="text/javascript" src="<%=path%>/assets/js/datepicker/bootstrap-datepicker.js?version=<%=System.currentTimeMillis()%>"></script>
-<script type="text/javascript" src="<%=path%>/assets/js/bk.js?version=<%=System.currentTimeMillis()%>"></script>
-<script type="text/javascript" src="<%=path%>/page/dist/js/am-pagination.js?version=<%=System.currentTimeMillis()%>"></script>
-
-
 
 
 <script type="text/javascript">
@@ -490,6 +480,7 @@ $("#dp1").datepicker({
 $("#dp2").datepicker({
   format: "yyyy-mm-dd"//日期格式
 });
+
 var polyline = new BMap.Polyline([ new BMap.Point(116.424391,39.936625),new BMap.Point(116.438764,39.957423),new BMap.Point(116.550872,39.931314) ], {
   strokeColor : "blue",
   strokeWeight : 2,
@@ -541,7 +532,10 @@ function queryView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
     map.clearOverlays();
     map.enableScrollWheelZoom(true);
     map.addOverlay(marker);// 将标注添加到地图中
-    map.centerAndZoom(point,12);
+    map.centerAndZoom(point,15);
+    map.addControl(new BMap.NavigationControl());
+    map.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));
+    map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}));
   }else{
     //清空之前的数据
     //获取查询参数
@@ -593,7 +587,10 @@ function queryView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
             markerInfo.setTitle(data.enument[i].equipmentLocation);
             mapInfo.addOverlay(markerInfo);// 将标注添加到地图中
           }
-          mapInfo.centerAndZoom(pointInfo, 12);
+          mapInfo.addControl(new BMap.NavigationControl());
+          mapInfo.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));
+          mapInfo.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}));
+          mapInfo.centerAndZoom(pointInfo, 15);
           var arrayList = [] ;
           var points=[];
           for(var t=0;t<data.orbit.length;t++) {
@@ -621,28 +618,6 @@ function queryView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
 function closeDiv(){
   $("#sub-car").css("display", "none");
 }
-//查看详情
-function openInfoWindow(content, top,left,flag) {
-  $("#sub-car").css("top", top-100 + "px");
-  $("#sub-car").css("left", left-230 + "px");
-  $("#sub-car").css("display", "block");
-  var html="";
-  if(flag=='0'){
-    html = html+'<div id="macOrCarPlate" style="font-weight: bold;">车牌号码:'+content.carPlate+'' +
-            '<span style="margin-right: 5px;float: right;" onclick="closeDiv();">[X]</span></div>';
-    html = html+'<table id="content"><tr> <td>通过时间：</td><td>'+content.startTime+'</td></tr>' +
-            '<tr> <td>车辆照片：</td><td><img src="<%=basePath%>/heatMap/images/timg.jpeg" width="140" height="100"/></td></tr>' +
-            '<tr><td colspan="2" style="float: right;margin-right: 10px;"><a href="#" style="float: right;margin-right: 10px;">查看详情</a></td></tr></table>';
-  }else{
-    html = html+'<div id="macOrCarPlate" style="font-weight: bold;">MAC:'+content.macAddress+'' +
-            '<span style="margin-right: 5px;float: right;" onclick="closeDiv();">[X]</span></div>';
-    html = html+'<table id="content"><tr> <td>通过时间：</td><td>'+content.startTime+'</td></tr>' +
-            '<tr><td colspan="2"><a href="#">查看详情</a></td></tr></table>';
-  }
-
-  $("#sub-car").html(html);
-}
-
 function showPoly(pointList,mapInfo,val,flag){
   //循环显示点对象
   for(c=0;c<pointList.length;c++){
@@ -662,9 +637,29 @@ function showPoly(pointList,mapInfo,val,flag){
       });
       marker = new BMap.Marker(pointList[c],{icon: myIcon});
     }
-    marker.propty=val[c];
+
+    var infoWindow;
+    if(flag=='0'){
+      var sContent =
+              "<div><h4 style='margin:0 0 5px 0;padding:0.2em 0'>车辆基本信息</h4>" +
+              "<img style='float:right;margin:4px' id='imgDemo' src='<%=basePath%>/heatMap/images/timg.jpeg' width='120' height='104' title='"+val[c].carPlate+"'/>" +
+              "<p style='margin:0;line-height:1.5;font-size:13px;'>车牌号码:"+val[c].carPlate+"</br>通过时间:"+val[c].startTime+"</p>" +
+              "<p style='margin:0;line-height:1.5;font-size:13px;'><a href='#' style='float: right;margin-right: 10px;'>查看详情</a></p>" +
+              "</div>";
+      infoWindow = new BMap.InfoWindow(sContent, pointList[c]);
+    }else{
+      var sContent =
+              "<div><h4 style='margin:0 0 5px 0;padding:0.2em 0'>MAC基本信息</h4>" +
+              "<img style='float:right;margin:4px' id='imgDemo' src='' width='120' height='104' title='"+val[c].macAddress+"'/>" +
+              "<p style='margin:0;line-height:1.5;font-size:13px;'>MAC地址:"+val[c].macAddress+"</br>通过时间:"+val[c].startTime+"</p>" +
+              "<p style='margin:0;line-height:1.5;font-size:13px;'><a href='#' style='float: right;margin-right: 10px;'>查看详情</a></p>" +
+              "</div>";
+      infoWindow = new BMap.InfoWindow(sContent, pointList[c]);
+    }
     marker.addEventListener("click", function(e) {
-      openInfoWindow(e.currentTarget.propty,e.clientY, e.clientX,flag);
+      this.openInfoWindow(infoWindow);
+      //图片加载完毕重绘infowindow
+      infoWindow.redraw();
     });
     mapInfo.addOverlay(marker);
   }
@@ -709,7 +704,10 @@ function queryOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
     map.clearOverlays();
     map.enableScrollWheelZoom(true);
     map.addOverlay(marker);// 将标注添加到地图中
-    map.centerAndZoom(point,12);
+    map.centerAndZoom(point,15);
+    map.addControl(new BMap.NavigationControl());
+    map.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));
+    map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}));
   }else{
     //清空之前的数据
     //获取查询参数
@@ -752,7 +750,10 @@ function queryOrbitView(actionInfo,macInfo,mac,macHistoryInfo,flag,val){
             markerInfo.setAnimation(BMAP_ANIMATION_DROP); //跳动的动画
             mapInfo.addOverlay(markerInfo);// 将标注添加到地图中
           }
-          mapInfo.centerAndZoom(pointInfo, 12);
+          mapInfo.addControl(new BMap.NavigationControl());
+          mapInfo.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));
+          mapInfo.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}));
+          mapInfo.centerAndZoom(pointInfo, 15);
           var arrayList = [] ;
           var points=[];
           for(var t=0;t<data.orbit.length;t++) {
@@ -805,10 +806,30 @@ function showSSPoly(pointList,mapInfo,val,flag){
     mapInfo.addOverlay(marker);
     //将途经点按顺序添加到地图上
     var label = new BMap.Label(c+1,{offset:new BMap.Size(20,-10)});
+
+    var infoWindow;
+    if(flag=='0'){
+      var sContent =
+              "<div><h4 style='margin:0 0 5px 0;padding:0.2em 0'>车辆基本信息</h4>" +
+              "<img style='float:right;margin:4px' id='imgDemo' src='<%=basePath%>/heatMap/images/timg.jpeg' width='120' height='104' title='"+val[c].carPlate+"'/>" +
+              "<p style='margin:0;line-height:1.5;font-size:13px;'>车牌号码:"+val[c].carPlate+"</br>通过时间:"+val[c].startTime+"</p>" +
+              "<p style='margin:0;line-height:1.5;font-size:13px;'><a href='#' style='float: right;margin-right: 10px;'>查看详情</a></p>" +
+              "</div>";
+      infoWindow = new BMap.InfoWindow(sContent, pointList[c]);
+    }else{
+      var sContent =
+              "<div><h4 style='margin:0 0 5px 0;padding:0.2em 0'>MAC基本信息</h4>" +
+              "<img style='float:right;margin:4px' id='imgDemo' src='' width='120' height='104' title='"+val[c].macAddress+"'/>" +
+              "<p style='margin:0;line-height:1.5;font-size:13px;'>MAC地址:"+val[c].macAddress+"</br>通过时间:"+val[c].startTime+"</p>" +
+              "<p style='margin:0;line-height:1.5;font-size:13px;'><a href='#' style='float: right;margin-right: 10px;'>查看详情</a></p>" +
+              "</div>";
+      infoWindow = new BMap.InfoWindow(sContent, pointList[c]);
+    }
     marker.setLabel(label);
-    marker.propty=val[c];
     marker.addEventListener("click", function(e) {
-      openInfoWindow(e.currentTarget.propty,e.clientY, e.clientX,flag);
+      this.openInfoWindow(infoWindow);
+      //图片加载完毕重绘infowindow
+      infoWindow.redraw();
     });
   }
   polyline = new BMap.Polyline(pointList, {

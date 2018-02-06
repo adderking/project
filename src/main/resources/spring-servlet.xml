@@ -52,5 +52,8 @@
     <mvc:resources mapping="/assets/font/**" location="assets/font/" />
     <mvc:resources mapping="/assets/fonts/**" location="assets/fonts/" />
     <mvc:resources mapping="/heatMap/images/**" location="heatMap/images/" />
-    <mvc:resources mapping="/heatMap/js/**" location="heatMap/js/" cache-period="86400"/>
+    <!--<mvc:resources mapping="/heatMap/js/**" location="heatMap/js/" cache-period="86400"/>-->
+    <mvc:resources mapping="/offlinemap/**" location="offlinemap/" cache-period="86400"/>
+    <mvc:resources mapping="/offlinemap/css/**" location="offlinemap/css/" />
+    <mvc:resources mapping="/offlinemap/images/**" location="offlinemap/images/" />
 </beans>
