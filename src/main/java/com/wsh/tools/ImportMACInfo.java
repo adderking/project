@@ -7,6 +7,7 @@ import com.scisdata.web.bean.ControlResult;
 import com.scisdata.web.bean.ControlTask;
 import com.scisdata.web.bean.WifiEquipmentInfo;
 import com.wsh.tools.utils.ConnectionUtil;
+import com.wsh.tools.utils.CreateInstanceUtil;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -71,7 +72,7 @@ public class ImportMACInfo {
         PreparedStatement pst = conn.prepareStatement(sql);
         ResultSet resultSet = pst.executeQuery();
         while (resultSet.next()) {
-            WifiEquipmentInfo wifiEquipmentInfoInstance = createWifiEquipmentInfoInstance(resultSet);
+            WifiEquipmentInfo wifiEquipmentInfoInstance = CreateInstanceUtil.createWifiEquipmentInfoInstance(resultSet);
             equipmentId2EquipmentInfoMap.put(wifiEquipmentInfoInstance.getEquipmentId(), wifiEquipmentInfoInstance);
         }
         resultSet.close();
@@ -141,23 +142,6 @@ public class ImportMACInfo {
         controlTask.setTaskType(taskType);
         controlTask.setControlType(controlType);
         return controlTask;
-    }
-
-    public WifiEquipmentInfo createWifiEquipmentInfoInstance(ResultSet resultSet) throws SQLException {
-        Long primaryId = resultSet.getLong(1);
-        String equipmentId = resultSet.getString(2);
-        String equipmentLocation = resultSet.getString(3);
-        Double latitude = resultSet.getDouble(4);
-        Double langitude = resultSet.getDouble(5);
-        Integer status = resultSet.getInt(6);
-        WifiEquipmentInfo wifiEquipmentInfo = new WifiEquipmentInfo();
-        wifiEquipmentInfo.setPrimaryId(primaryId);
-        wifiEquipmentInfo.setEquipmentId(equipmentId);
-        wifiEquipmentInfo.setEquipmentLocation(equipmentLocation);
-        wifiEquipmentInfo.setLatitude(latitude);
-        wifiEquipmentInfo.setLangitude(langitude);
-        wifiEquipmentInfo.setStatus(status);
-        return wifiEquipmentInfo;
     }
 
     private void parseFile(File file, String outPutFilePath) throws IOException, SQLException, ClassNotFoundException {
