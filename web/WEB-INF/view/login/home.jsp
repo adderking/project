@@ -321,34 +321,6 @@
               <i class="icon-monitor"></i>
               <span>全区布控</span>
             </a>
-           <%-- <ul>
-              <li>
-                <a class="tooltip-tip2 ajax-load" href="element.html" title="Element"><i class="icon-attachment"></i><span>Element</span></a>
-              </li>
-              <li><a class="tooltip-tip2 ajax-load" href="button.html" title="Button"><i class="icon-view-list-large"></i><span>Button</span> <div class="noft-blue-number">10</div></a>
-              </li>
-              <li>
-                <a class="tooltip-tip2 ajax-load" href="wizard.html" title="Tab & Accordion"><i class="icon-folder"></i><span>Wizard</span><div class="noft-purple-number">3</div></a>
-              </li>
-              <li>
-                <a class="tooltip-tip2 ajax-load" href="calendar.html" title="Calender"><i class="icon-calendar"></i><span>Calendar</span></a>
-              </li>
-              <li>
-                <a class="tooltip-tip2 ajax-load" href="tree.html" title="Tree View"><i class="icon-view-list"></i><span>Tree View</span></a>
-              </li>
-              <li>
-                <a class="tooltip-tip2 ajax-load" href="grids.html" title="Grids"><i class="icon-menu"></i><span>Grids</span></a>
-              </li>
-              <li>
-                <a class="tooltip-tip2 ajax-load" href="chart.html" title="Chart"><i class="icon-graph-pie"></i><span>Chart</span></a>
-              </li>
-              <li>
-                <a class="tooltip-tip ajax-load" href="typhography.html" title="Typhoghrapy">
-                  <i class="icon-information"></i>
-                  <span>Typhoghrapy</span>
-                </a>
-              </li>
-            </ul>--%>
           </li>
           <li>
             <a class="tooltip-tip" href="#" onclick="ddbk('<%=basePath%>/orbit/','getDDBK','布控、轨迹绑定','车辆布控','定点布控','<%=basePath%>');" title="Form">
@@ -356,14 +328,24 @@
               <span>定点布控</span>
             </a>
           </li>
+
+        </ul>
+        <ul class="topnav menu-left-nest">
+          <li>
+            <a href="#" style="border-left:0px solid!important;" class="title-menu-left">
+
+              <span class="doc"></span>
+              <%--<i data-toggle="tooltip" class="entypo-cog pull-right config-wrap"></i>--%>
+
+            </a>
+          </li>
           <li>
             <a class="tooltip-tip" href="#" title="Tables">
               <i class="icon-media-shuffle"></i>
-              <span>MAC/车辆绑定</span>
+              <span>人员基本信息</span>
             </a>
           </li>
         </ul>
-
 
       </div>
     </div>

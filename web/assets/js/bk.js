@@ -375,6 +375,9 @@ function ddbk(path,actionInfo,macInfo,mac,macHistoryInfo,urlPath,val){
                 var pointInfo = new BMap.Point(data.enument[0].langitude, data.enument[0].latitude);
                 mapInfo.clearOverlays();
                 mapInfo.enableScrollWheelZoom(true);
+                //添加一个圆形
+                var circle = new BMap.Circle(pointInfo,1195);
+                mapInfo.addOverlay(circle);
                 for(var i=0;i<data.enument.length;i++){
                     var pointVal = new BMap.Point(data.enument[i].langitude, data.enument[i].latitude);
                     var myIcon;
