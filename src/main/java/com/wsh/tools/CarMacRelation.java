@@ -1,6 +1,7 @@
 package com.wsh.tools;
 
 import com.scisdata.web.bean.*;
+import com.scisdata.web.enumeration.DirectionEnum;
 import com.scisdata.web.util.DateUtils;
 import com.wsh.tools.utils.ConnectionUtil;
 import com.wsh.tools.utils.CreateInstanceUtil;
@@ -20,7 +21,6 @@ public class CarMacRelation {
     private enum DIRECTION {FROM, TO} //与车辆行进方向相关和wifi采集点相对车辆采集点的方位相关。例如车辆行进方向为南向北，则位于车辆采集点南边的wifi采集设备取FROM，位于车辆采集点北边的wifi采集设备取TO
     private List<WifiEquipmentInfo> wifiEquipmentInfoList = new ArrayList<>();//缓存wifi采集设备列表信息
     private List<VideoEquipmentInfo> videoEquipmentInfoList = new ArrayList<>();//缓存车辆采集设备列表信息
-    private Map<String, WifiEquipmentInfo> wifiEquipmentId2WifiEquipmentInfoMap = new HashMap<>();//缓存wifi采集设备id到设备信息的映射
     private Map<String, VideoEquipmentInfo> videoEquipmentId2VideoEquipmentInfoMap = new HashMap<>();//缓存车辆采集设备id到设备信息的映射
     private Map<String, NearestLocation> videoEquipmentId2NearestWifiLocationMap = new HashMap<>();//缓存各车辆采集设备和距离它最近的wifi采集点的映射信息
     private Map<String, Map<String, List<MacTrace>>> equipmentId2MacTimeLineMap = new HashMap<>();//缓存各wifi采集设备和按照时间分组后的mac轨迹信息的映射关系
@@ -50,7 +50,6 @@ public class CarMacRelation {
         while (resultSet.next()) {
             WifiEquipmentInfo wifiEquipmentInfoInstance = CreateInstanceUtil.createWifiEquipmentInfoInstance(resultSet);
             wifiEquipmentInfoList.add(wifiEquipmentInfoInstance);
-            wifiEquipmentId2WifiEquipmentInfoMap.put(wifiEquipmentInfoInstance.getEquipmentId(), wifiEquipmentInfoInstance);
         }
         resultSet.close();
         pst.close();
@@ -104,6 +103,7 @@ public class CarMacRelation {
                 List<MacTrace> macTraceList = new ArrayList<>();
                 macTraceList.add(macTraceInstance);
                 timePoint2MacTraceList.put(startTimePoint, macTraceList);
+                timePoint = startTimePoint;
             } else {
                 List<MacTrace> macTraceList = timePoint2MacTraceList.get(startTimePoint);
                 macTraceList.add(macTraceInstance);
@@ -133,6 +133,7 @@ public class CarMacRelation {
                 List<CarTrace> carTraceList = new ArrayList<>();
                 carTraceList.add(carTraceInstance);
                 timePoint2CarTraceList.put(startTimeStr, carTraceList);
+                timePoint = startTimeStr;
             } else {
                 List<CarTrace> carTraceList = timePoint2CarTraceList.get(startTimeStr);
                 carTraceList.add(carTraceInstance);
@@ -176,34 +177,37 @@ public class CarMacRelation {
             if (wifiEquipmentPoint.isLocatedInNorth(videoEquipmentPoint)) {
                 if (null == nearestNorthInfo) {
                     nearestNorthInfo = new LocationInfo(wifiEquipmentInfo, distance);
-                } else if (distance < nearestNorthInfo.getDistance()) {
-                    nearestNorthInfo.setWifiEquipmentInfo(wifiEquipmentInfo);
-                    nearestNorthInfo.setDistance(distance);
+                } else {
+                    update(nearestNorthInfo, distance, wifiEquipmentInfo);
                 }
             } else if (wifiEquipmentPoint.isLocatedInSouth(videoEquipmentPoint)) {
                 if (null == nearestSouthInfo) {
                     nearestSouthInfo = new LocationInfo(wifiEquipmentInfo, distance);
-                } else if (distance < nearestSouthInfo.getDistance()) {
-                    nearestSouthInfo.setWifiEquipmentInfo(wifiEquipmentInfo);
-                    nearestSouthInfo.setDistance(distance);
+                } else {
+                    update(nearestSouthInfo, distance, wifiEquipmentInfo);
                 }
             } else if (wifiEquipmentPoint.isLocatedInEast(videoEquipmentPoint)) {
                 if (null == nearestEastInfo) {
                     nearestEastInfo = new LocationInfo(wifiEquipmentInfo, distance);
-                } else if (distance < nearestEastInfo.getDistance()) {
-                    nearestEastInfo.setWifiEquipmentInfo(wifiEquipmentInfo);
-                    nearestEastInfo.setDistance(distance);
+                } else {
+                    update(nearestEastInfo, distance, wifiEquipmentInfo);
                 }
             } else if (wifiEquipmentPoint.isLocatedInWest(videoEquipmentPoint)) {
                 if (null == nearestWestInfo) {
                     nearestWestInfo = new LocationInfo(wifiEquipmentInfo, distance);
-                } else if (distance < nearestWestInfo.getDistance()) {
-                    nearestWestInfo.setWifiEquipmentInfo(wifiEquipmentInfo);
-                    nearestWestInfo.setDistance(distance);
+                } else {
+                    update(nearestWestInfo, distance, wifiEquipmentInfo);
                 }
             }
         }
         return new NearestLocation(nearestNorthInfo, nearestSouthInfo, nearestEastInfo, nearestWestInfo);
+    }
+
+    public void update(LocationInfo nearestInfo, Double distance, WifiEquipmentInfo wifiEquipmentInfo) {
+        if (distance < nearestInfo.getDistance()) {
+            nearestInfo.setWifiEquipmentInfo(wifiEquipmentInfo);
+            nearestInfo.setDistance(distance);
+        }
     }
 
     //分析思路：
@@ -226,124 +230,142 @@ public class CarMacRelation {
                 for (String timePoint : timePoints) {
                     List<CarTrace> carTraces = timePoint2CarTracesMap.get(timePoint);
                     String direction = videoEquipmentInfo.getDirection();
-                    if (direction.equals("北向南")) {
-                        // 如果设备采集方向为北向南
-                        // 则位于车辆采集点以北的wifi采集点，bundle方法中direction参数值为FROM
-                        // 位于车辆采集点以南的wifi采集点，bundle方法中direction参数值为TO
-                        // 与车辆行进方向相匹配
-                        LocationInfo northNearest = nearestLocation.getNorthNearest();
-                        if (null != northNearest) {
-                            bundle(northNearest, timePoint, carTraces, DIRECTION.FROM.name());
-                        }
-                        LocationInfo southNearest = nearestLocation.getSouthNearest();
-                        if (null != southNearest) {
-                            bundle(southNearest, timePoint, carTraces, DIRECTION.TO.name());
-                        }
-                        // 应为设备采集的行进方向为南北，则东西最近点要看是在车辆采集点南北的哪个方向，再来进行计算
-                        LocationInfo eastNearest = nearestLocation.getEastNearest();
-                        if (null != eastNearest) {
-                            GeoPoint wifiEquipmentPoint = new GeoPoint(eastNearest.getWifiEquipmentInfo().getLatitude(), eastNearest.getWifiEquipmentInfo().getLangitude());
-                            if (wifiEquipmentPoint.isLocatedInNorth(videoEquipmentPoint)) {
-                                bundle(eastNearest, timePoint, carTraces, DIRECTION.FROM.name());
-                            } else {
-                                bundle(eastNearest, timePoint, carTraces, DIRECTION.TO.name());
-                            }
-                        }
-                        LocationInfo westNearest = nearestLocation.getWestNearest();
-                        if (null != westNearest) {
-                            GeoPoint wifiEquipmentPoint = new GeoPoint(westNearest.getWifiEquipmentInfo().getLatitude(), westNearest.getWifiEquipmentInfo().getLangitude());
-                            if (wifiEquipmentPoint.isLocatedInNorth(videoEquipmentPoint)) {
-                                bundle(westNearest, timePoint, carTraces, DIRECTION.FROM.name());
-                            } else {
-                                bundle(westNearest, timePoint, carTraces, DIRECTION.TO.name());
-                            }
-                        }
-
-                    } else if (direction.equals("南向北")) {
-                        LocationInfo southNearest = nearestLocation.getSouthNearest();
-                        if (null != southNearest) {
-                            bundle(southNearest, timePoint, carTraces, DIRECTION.FROM.name());
-                        }
-                        LocationInfo northNearest = nearestLocation.getNorthNearest();
-                        if (null != northNearest) {
-                            bundle(northNearest, timePoint, carTraces, DIRECTION.TO.name());
-                        }
-                        LocationInfo eastNearest = nearestLocation.getEastNearest();
-                        if (null != eastNearest) {
-                            GeoPoint wifiEquipmentPoint = new GeoPoint(eastNearest.getWifiEquipmentInfo().getLatitude(), eastNearest.getWifiEquipmentInfo().getLangitude());
-                            if (wifiEquipmentPoint.isLocatedInSouth(videoEquipmentPoint)) {
-                                bundle(eastNearest, timePoint, carTraces, DIRECTION.FROM.name());
-                            } else {
-                                bundle(eastNearest, timePoint, carTraces, DIRECTION.TO.name());
-                            }
-                        }
-                        LocationInfo westNearest = nearestLocation.getWestNearest();
-                        if (null != westNearest) {
-                            GeoPoint wifiEquipmentPoint = new GeoPoint(westNearest.getWifiEquipmentInfo().getLatitude(), westNearest.getWifiEquipmentInfo().getLangitude());
-                            if (wifiEquipmentPoint.isLocatedInSouth(videoEquipmentPoint)) {
-                                bundle(westNearest, timePoint, carTraces, DIRECTION.FROM.name());
-                            } else {
-                                bundle(westNearest, timePoint, carTraces, DIRECTION.TO.name());
-                            }
-                        }
-                    } else if (direction.equals("东向西")) {
-                        LocationInfo eastNearest = nearestLocation.getEastNearest();
-                        if (null != eastNearest) {
-                            bundle(eastNearest, timePoint, carTraces, DIRECTION.FROM.name());
-                        }
-                        LocationInfo westNearest = nearestLocation.getWestNearest();
-                        if (null != westNearest) {
-                            bundle(westNearest, timePoint, carTraces, DIRECTION.TO.name());
-                        }
-                        LocationInfo northNearest = nearestLocation.getNorthNearest();
-                        if (null != northNearest) {
-                            GeoPoint wifiEquipmentPoint = new GeoPoint(northNearest.getWifiEquipmentInfo().getLatitude(), northNearest.getWifiEquipmentInfo().getLangitude());
-                            if (wifiEquipmentPoint.isLocatedInEast(videoEquipmentPoint)) {
-                                bundle(northNearest, timePoint, carTraces, DIRECTION.FROM.name());
-                            } else {
-                                bundle(northNearest, timePoint, carTraces, DIRECTION.TO.name());
-                            }
-                        }
-                        LocationInfo southNearest = nearestLocation.getSouthNearest();
-                        if (null != southNearest) {
-                            GeoPoint wifiEquipmentPoint = new GeoPoint(southNearest.getWifiEquipmentInfo().getLatitude(), southNearest.getWifiEquipmentInfo().getLangitude());
-                            if (wifiEquipmentPoint.isLocatedInEast(videoEquipmentPoint)) {
-                                bundle(southNearest, timePoint, carTraces, DIRECTION.FROM.name());
-                            } else {
-                                bundle(southNearest, timePoint, carTraces, DIRECTION.TO.name());
-                            }
-                        }
-                    } else if (direction.equals("西向东")) {
-                        LocationInfo westNearest = nearestLocation.getWestNearest();
-                        if (null != westNearest) {
-                            bundle(westNearest, timePoint, carTraces, DIRECTION.FROM.name());
-                        }
-                        LocationInfo eastNearest = nearestLocation.getEastNearest();
-                        if (null != eastNearest) {
-                            bundle(eastNearest, timePoint, carTraces, DIRECTION.TO.name());
-                        }
-                        LocationInfo northNearest = nearestLocation.getNorthNearest();
-                        if (null != northNearest) {
-                            GeoPoint wifiEquipmentPoint = new GeoPoint(northNearest.getWifiEquipmentInfo().getLatitude(), northNearest.getWifiEquipmentInfo().getLangitude());
-                            if (wifiEquipmentPoint.isLocatedInWest(videoEquipmentPoint)) {
-                                bundle(northNearest, timePoint, carTraces, DIRECTION.FROM.name());
-                            } else {
-                                bundle(northNearest, timePoint, carTraces, DIRECTION.TO.name());
-                            }
-                        }
-                        LocationInfo southNearest = nearestLocation.getSouthNearest();
-                        if (null != southNearest) {
-                            GeoPoint wifiEquipmentPoint = new GeoPoint(southNearest.getWifiEquipmentInfo().getLatitude(), southNearest.getWifiEquipmentInfo().getLangitude());
-                            if (wifiEquipmentPoint.isLocatedInWest(videoEquipmentPoint)) {
-                                bundle(southNearest, timePoint, carTraces, DIRECTION.FROM.name());
-                            } else {
-                                bundle(southNearest, timePoint, carTraces, DIRECTION.TO.name());
-                            }
-                        }
+                    switch (DirectionEnum.val(direction)) {
+                        case NORTH_TO_SOUTH :
+                            handleNorthToSouth(nearestLocation, videoEquipmentPoint, timePoint, carTraces, direction);
+                            break;
+                        case SOUTH_TO_NORTH :
+                            handleSouthToNorth(nearestLocation, videoEquipmentPoint, timePoint, carTraces, direction);
+                            break;
+                        case EAST_TO_WEST :
+                            handleEastToWest(nearestLocation, videoEquipmentPoint, timePoint, carTraces, direction);
+                            break;
+                        case WEST_TO_EAST :
+                            handleWestToEast(nearestLocation, videoEquipmentPoint, timePoint, carTraces, direction);
+                            break;
                     }
                 }
             }
         }
+    }
+
+    private void handleNorthToSouth(NearestLocation nearestLocation, GeoPoint videoEquipmentPoint, String timePoint, List<CarTrace> carTraces, String direction) {
+        // 如果设备采集方向为北向南
+        // 则位于车辆采集点以北的wifi采集点，bundle方法中direction参数值为FROM
+        // 位于车辆采集点以南的wifi采集点，bundle方法中direction参数值为TO
+        // 与车辆行进方向相匹配
+        LocationInfo northNearest = nearestLocation.getNorthNearest();
+        if (null != northNearest) {
+            bundle(northNearest, timePoint, carTraces, DIRECTION.FROM.name());
+        }
+        LocationInfo southNearest = nearestLocation.getSouthNearest();
+        if (null != southNearest) {
+            bundle(southNearest, timePoint, carTraces, DIRECTION.TO.name());
+        }
+        // 应为设备采集的行进方向为南北，则东西最近点要看是在车辆采集点南北的哪个方向，再来进行计算
+        LocationInfo eastNearest = nearestLocation.getEastNearest();
+        if (null != eastNearest) {
+            handleOrthogonalDirectionNearestWifiEquipment(eastNearest, videoEquipmentPoint, timePoint, carTraces, direction);
+        }
+        LocationInfo westNearest = nearestLocation.getWestNearest();
+        if (null != westNearest) {
+            handleOrthogonalDirectionNearestWifiEquipment(westNearest, videoEquipmentPoint, timePoint, carTraces, direction);
+        }
+    }
+
+    private void handleSouthToNorth(NearestLocation nearestLocation, GeoPoint videoEquipmentPoint, String timePoint, List<CarTrace> carTraces, String direction) {
+        LocationInfo southNearest = nearestLocation.getSouthNearest();
+        if (null != southNearest) {
+            bundle(southNearest, timePoint, carTraces, DIRECTION.FROM.name());
+        }
+        LocationInfo northNearest = nearestLocation.getNorthNearest();
+        if (null != northNearest) {
+            bundle(northNearest, timePoint, carTraces, DIRECTION.TO.name());
+        }
+        LocationInfo eastNearest = nearestLocation.getEastNearest();
+        if (null != eastNearest) {
+            handleOrthogonalDirectionNearestWifiEquipment(eastNearest, videoEquipmentPoint, timePoint, carTraces, direction);
+        }
+        LocationInfo westNearest = nearestLocation.getWestNearest();
+        if (null != westNearest) {
+            handleOrthogonalDirectionNearestWifiEquipment(westNearest, videoEquipmentPoint, timePoint, carTraces, direction);
+        }
+    }
+
+    private void handleEastToWest(NearestLocation nearestLocation, GeoPoint videoEquipmentPoint, String timePoint, List<CarTrace> carTraces, String direction) {
+        LocationInfo eastNearest = nearestLocation.getEastNearest();
+        if (null != eastNearest) {
+            bundle(eastNearest, timePoint, carTraces, DIRECTION.FROM.name());
+        }
+        LocationInfo westNearest = nearestLocation.getWestNearest();
+        if (null != westNearest) {
+            bundle(westNearest, timePoint, carTraces, DIRECTION.TO.name());
+        }
+        LocationInfo northNearest = nearestLocation.getNorthNearest();
+        if (null != northNearest) {
+            handleOrthogonalDirectionNearestWifiEquipment(northNearest, videoEquipmentPoint, timePoint, carTraces, direction);
+        }
+        LocationInfo southNearest = nearestLocation.getSouthNearest();
+        if (null != southNearest) {
+            handleOrthogonalDirectionNearestWifiEquipment(southNearest, videoEquipmentPoint, timePoint, carTraces, direction);
+        }
+    }
+
+    private void handleWestToEast(NearestLocation nearestLocation, GeoPoint videoEquipmentPoint, String timePoint, List<CarTrace> carTraces, String direction) {
+        LocationInfo westNearest = nearestLocation.getWestNearest();
+        if (null != westNearest) {
+            bundle(westNearest, timePoint, carTraces, DIRECTION.FROM.name());
+        }
+        LocationInfo eastNearest = nearestLocation.getEastNearest();
+        if (null != eastNearest) {
+            bundle(eastNearest, timePoint, carTraces, DIRECTION.TO.name());
+        }
+        LocationInfo northNearest = nearestLocation.getNorthNearest();
+        if (null != northNearest) {
+            handleOrthogonalDirectionNearestWifiEquipment(northNearest, videoEquipmentPoint, timePoint, carTraces, direction);
+        }
+        LocationInfo southNearest = nearestLocation.getSouthNearest();
+        if (null != southNearest) {
+            handleOrthogonalDirectionNearestWifiEquipment(southNearest, videoEquipmentPoint, timePoint, carTraces, direction);
+        }
+    }
+
+    //当前监控方向为南向北，此方法则处理在车辆采集设备东，西两最近wifi采集设备点
+    //当前监控方向为东向西，此方法则处理在车辆采集设备南，北两最近wifi采集设备点
+    //其他监控方向类似
+    private void handleOrthogonalDirectionNearestWifiEquipment(LocationInfo nearest, GeoPoint videoEquipmentPoint, String timePoint, List<CarTrace> carTraces, String direction) {
+        GeoPoint wifiEquipmentPoint = new GeoPoint(nearest.getWifiEquipmentInfo().getLatitude(), nearest.getWifiEquipmentInfo().getLangitude());
+        switch (DirectionEnum.val(direction)) {
+            case NORTH_TO_SOUTH :
+                if (wifiEquipmentPoint.isLocatedInNorth(videoEquipmentPoint)) {
+                    bundle(nearest, timePoint, carTraces, DIRECTION.FROM.name());
+                } else {
+                    bundle(nearest, timePoint, carTraces, DIRECTION.TO.name());
+                }
+                break;
+            case SOUTH_TO_NORTH :
+                if (wifiEquipmentPoint.isLocatedInSouth(videoEquipmentPoint)) {
+                    bundle(nearest, timePoint, carTraces, DIRECTION.FROM.name());
+                } else {
+                    bundle(nearest, timePoint, carTraces, DIRECTION.TO.name());
+                }
+                break;
+            case EAST_TO_WEST :
+                if (wifiEquipmentPoint.isLocatedInEast(videoEquipmentPoint)) {
+                    bundle(nearest, timePoint, carTraces, DIRECTION.FROM.name());
+                } else {
+                    bundle(nearest, timePoint, carTraces, DIRECTION.TO.name());
+                }
+                break;
+            case WEST_TO_EAST :
+                if (wifiEquipmentPoint.isLocatedInWest(videoEquipmentPoint)) {
+                    bundle(nearest, timePoint, carTraces, DIRECTION.FROM.name());
+                } else {
+                    bundle(nearest, timePoint, carTraces, DIRECTION.TO.name());
+                }
+                break;
+        }
+
     }
 
     private void bundle (LocationInfo locationInfo, String timePoint, List<CarTrace> carTraces, String direction) {
