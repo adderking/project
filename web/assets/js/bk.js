@@ -42,9 +42,44 @@ function qqbkText(basePath,actionInfo,macInfo,mac,macHistoryInfo,flag,val){
     });
 
 }
+function ddbkText(basePath,actionInfo,macInfo,mac,macHistoryInfo,flag,val){
+    var url = basePath+"execute/"+actionInfo;
+    path = basePath;
+    //生成 全区布控页面
+    //先初始化地图
+    $("#MacOrbit").text(macInfo);
+    $("#Mac").text(mac);
+    $("#MacHistoryInfo").text(macHistoryInfo);
+    $("#dp1").remove();
+    $("#dp2").remove();
+    $("#dp1label").remove();
+    $("#dp2label").remove();
+    $("#macAddress").remove();
+    $("#button").children().remove();
+    $("#mapContainer").children().remove();
+    $("#button").append('<button type="button" class="btn btn-default" onclick="ddbk(\''+basePath+'/orbit/\',\'getDDBK\',\'布控、轨迹绑定\',\'车辆布控\',\'定点布控\',\''+basePath+'\');">新建</button>');
+    $.ajax({
+        type:"post",
+        url:url,
+        data:{pageNum:1,limit:limit},
+        dataType:"json",
+        success:function(data){
+            if(data.records >= 0){
+                createTable(data,titles,key,url);
+            }else{
+                alert("获取信息失败");
+            }
+        },
+        error:function(data){
+            alert("获取信息失败");
+        }
+    });
+
+}
 function showdiv(project) {
     document.getElementById("bg").style.display ="block";
     document.getElementById("show").style.display ="block";
+    $("#bk").children().remove();
     //生成表单
     var html = '<label for="taskName">任务名称:</label>' +
         '<input type="text" name="taskName" id="taskName" required placeholder="任务名称" style="color:#000000"/>';
@@ -338,7 +373,7 @@ function ddbk(path,actionInfo,macInfo,mac,macHistoryInfo,urlPath,val){
     $("#mapContainer").children().remove();
     //生成设备地图
     if($('#button').children().length == 0){
-        $('#button').append('<button type="button" class="btn btn-default" onclick="qqbkText(\''+path+'\',\'getQQBKPage\',\'布控、轨迹绑定\',\'车辆布控\',\'全区布控\',\'1\',\'车牌号码\');">保存</button>');
+        $('#button').append('<button type="button" id="edit" class="btn btn-default" >保存</button>');
     }
     //设置单选框
     if($("#dp1").length == 0){
@@ -375,11 +410,13 @@ function ddbk(path,actionInfo,macInfo,mac,macHistoryInfo,urlPath,val){
                 var pointInfo = new BMap.Point(data.enument[0].langitude, data.enument[0].latitude);
                 mapInfo.clearOverlays();
                 mapInfo.enableScrollWheelZoom(true);
-                //添加一个圆形
-                var circle = new BMap.Circle(pointInfo,1195);
-                mapInfo.addOverlay(circle);
-                for(var i=0;i<data.enument.length;i++){
+                //添加一个多边形
+                /*var drogon=[];*/
+                for(var i=0;i<data.enument.length;i++) {
                     var pointVal = new BMap.Point(data.enument[i].langitude, data.enument[i].latitude);
+                    /*if (i<=4){
+                        drogon.push(pointVal);
+                     }*/
                     var myIcon;
                     if(title=='0'){
                         myIcon = new BMap.Icon(urlPath+"/heatMap/images/113equipment.png", new BMap.Size(23, 25), {
@@ -394,6 +431,12 @@ function ddbk(path,actionInfo,macInfo,mac,macHistoryInfo,urlPath,val){
                     markerInfo.setTitle(data.enument[i].equipmentLocation);
                     mapInfo.addOverlay(markerInfo);// 将标注添加到地图中
                 }
+                var circle = new BMap.Circle(new BMap.Point(116.266728,39.778069),500);
+                mapInfo.addOverlay(circle);
+                mapInfo.enableScrollWheelZoom();
+                circle.enableEditing();
+                //为按钮添加事件
+                edit(circle,mapInfo,urlPath);
                 mapInfo.addControl(new BMap.NavigationControl());
                 mapInfo.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));
                 mapInfo.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}));
@@ -412,11 +455,86 @@ function ddbk(path,actionInfo,macInfo,mac,macHistoryInfo,urlPath,val){
                     showSSPoly(arrayList,mapInfo,data.orbit,'1');
                 }
 
-
             }
         },
         error:function(data){
             alert("获取信息失败");
+        }
+    });
+}
+function edit(circle,mapInfo,urlPath){
+    var value="";
+    //为按钮添加事件
+    $("#edit").click(function(){
+        var maker_arr = [];
+        var overlays  = circle.getMap().getOverlays();
+        for(var i=0;i<overlays.length;i++){
+            //判断 覆盖物为标注的并且是在圆形区域内部的
+            if(overlays[i].toString() == "[object Marker]"){
+                //获取标注点到圆心的距离 与半径做对比
+                if(mapInfo.getDistance(circle.getCenter(),overlays[i].getPosition()) < circle.getRadius()){
+                    if(!(value.indexOf(overlays[i].z.title)!=-1)){
+                        value = value + "'"+overlays[i].z.title+"',";
+                    }
+                }
+            }
+        }
+        if(value!=""){
+            value = value.substr(0,value.length-1);
+        }
+        //显示div
+        document.getElementById("bg").style.display ="block";
+        document.getElementById("show").style.display ="block";
+        //移除内容
+        $("#bk").children().remove();
+        //生成表单
+        var html = '<label for="taskName">任务名称:</label>' +
+            '<input type="text" name="taskName" id="taskName" required placeholder="任务名称" style="color:#000000"/>';
+        html = html + '<label for="controlTarget">布控目标:</label>' +
+            '<input type="text" name="controlTarget" id="controlTarget" required placeholder="车牌号码、MAC地址" style="color:#000000"/>';
+        html = html + '<label for="startTime">开始时间:</label>' +
+            '<input type="text" name="startTime" id="startTime" required placeholder="开始时间" style="color:#000000"/>';
+        html = html + '<label for="endTime">结束时间:</label>' +
+            '<input type="text" name="endTime" id="endTime" required placeholder="结束时间" style="color:#000000"/>' +
+            '<label for="enqumentId">设备信息:</label>' +
+            '<input type="text" name="enqumentId" id="enqumentId" required placeholder="设备信息" value="'+value+'" style="color:#000000"/>'+
+            '<label for="taskName">任务类型:</label><select id="taskType" style="width:100px;"><option value="0">车辆</option><option value="0">MAC地址</option></select></br>';
+        html = html + '<input type="submit" id="submit" onclick="ddbkTJ(\''+urlPath+'\');" value="提交" />';
+        $("#bk").append(html);
+        //添加时间
+        $("#startTime").datepicker({
+            format: "yyyy-mm-dd"//日期格式
+        });
+        $("#endTime").datepicker({
+            format: "yyyy-mm-dd"//日期格式
+        });
+    });
+}
+function ddbkTJ(project){
+    var taskName = $("#taskName").val();//任务名称
+    var controlTarget = $("#controlTarget").val();
+    var startTime = $("#startTime").val();
+    var endTime = $("#endTime").val();
+    var taskType = $("#taskType").find("option:selected").val();
+    var equmentInfo = $("#enqumentId").val();
+    alert(equmentInfo);
+    //添加布控任务
+    $.ajax({
+        type:"post",
+        url:project+"/execute/insertQQBK",
+        data:{taskName:taskName,controlTarget:controlTarget,startTime:startTime,endTime:endTime,taskType:taskType,enqumentId:equmentInfo},
+        dataType:"json",
+        success:function(data){
+            //提示信息
+            if(data.msg="true"){
+                alert("添加定点布控任务成功");
+                hidediv();
+                //刷新table
+                ddbkText(project,'getDDBKPage','布控、轨迹绑定','车辆布控','定点布控','1','车牌号码');
+            }
+        },
+        error:function(data){
+            alert("添加定点布控任务失败");
         }
     });
 }
@@ -452,6 +570,12 @@ function ddbk1(path,actionInfo,macInfo,mac,macHistoryInfo,urlPath,val){
                     markerInfo.setTitle(data.enument[i].equipmentLocation);
                     mapInfo.addOverlay(markerInfo);// 将标注添加到地图中
                 }
+                var circle = new BMap.Circle(new BMap.Point(116.266728,39.778069),500);
+                mapInfo.addOverlay(circle);
+                mapInfo.enableScrollWheelZoom();
+                circle.enableEditing();
+                //为按钮添加事件
+                edit(circle,mapInfo,urlPath);
                 mapInfo.addControl(new BMap.NavigationControl());
                 mapInfo.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));
                 mapInfo.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}));

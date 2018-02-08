@@ -162,8 +162,10 @@
 <div id="bg"></div>
 <div id="show">
   <div style="float: right;margin-right:5px;height: 5px;"><img src="<%=basePath%>/heatMap/images/close.png" onclick="hidediv();"><%--<input id="btnclose" type="button" value="Close" onclick="hidediv();"/>--%></div>
-  <form action="#" id="bk">
-  </form>
+  <div id="bk" style="align-content: center;">
+
+
+  </div>
 </div>
 <!-- Preloader -->
 <div id="preloader">
@@ -323,7 +325,7 @@
             </a>
           </li>
           <li>
-            <a class="tooltip-tip" href="#" onclick="ddbk('<%=basePath%>/orbit/','getDDBK','布控、轨迹绑定','车辆布控','定点布控','<%=basePath%>');" title="Form">
+            <a class="tooltip-tip" href="#" onclick="ddbkText('<%=basePath%>/','getDDBKPage','布控、轨迹绑定','车辆布控','定点布控','1','车牌号码');" title="Form">
               <i class="icon-lock"></i>
               <span>定点布控</span>
             </a>
@@ -808,6 +810,7 @@ function showSSPoly(pointList,mapInfo,val,flag){
       infoWindow = new BMap.InfoWindow(sContent, pointList[c]);
     }
     marker.setLabel(label);
+    marker.setTitle(val[c].equipmentLocation);
     marker.addEventListener("click", function(e) {
       this.openInfoWindow(infoWindow);
       //图片加载完毕重绘infowindow
