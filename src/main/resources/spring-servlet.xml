@@ -56,4 +56,8 @@
     <mvc:resources mapping="/offlinemap/**" location="offlinemap/" cache-period="86400"/>
     <mvc:resources mapping="/offlinemap/css/**" location="offlinemap/css/" />
     <mvc:resources mapping="/offlinemap/images/**" location="offlinemap/images/" />
+    <mvc:resources location="demo/resources" mapping="/demo/resources"/>
+    <mvc:resources location="demo/images" mapping="/demo/images"/>
+    <mvc:resources location="demo/files" mapping="/demo/files"/>
+    <mvc:resources location="demo/images/renyuandangan/" mapping="demo/images/renyuandangan"/>
 </beans>

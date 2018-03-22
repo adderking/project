@@ -217,7 +217,7 @@
       <ul style="margin-right:0;" class="nav navbar-nav navbar-right">
         <li>
           <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-            <img alt="" class="admin-pic img-circle" src="">Hi, 方夏 <b class="caret"></b>
+            <%--<img alt="" class="admin-pic img-circle" src="">--%>Hi, 方夏 <b class="caret"></b>
           </a>
         </li>
       </ul>
@@ -342,9 +342,15 @@
             </a>
           </li>
           <li>
-            <a class="tooltip-tip" href="#" title="Tables">
+            <a class="tooltip-tip" href="#" onclick="window.open('<%=basePath%>/mvc/person')" title="Tables">
               <i class="icon-media-shuffle"></i>
               <span>人员基本信息</span>
+            </a>
+          </li>
+          <li>
+            <a class="tooltip-tip" href="#" onclick="window.open('<%=basePath%>/mvc/daping')" title="Tables">
+              <i class="icon-media-shuffle"></i>
+              <span>大屏展示</span>
             </a>
           </li>
         </ul>

@@ -54,4 +54,14 @@ public class LoginController extends BaseController{
         //用户名和密码不为空,进行登录验证
         return "view/login/home";
     }
+    @RequestMapping(value = "/person")
+    public  String person(){
+        //用户名和密码不为空,进行登录验证
+        return "view/login/person";
+    }
+    @RequestMapping(value = "/daping")
+    public  String daping(){
+        //用户名和密码不为空,进行登录验证
+        return "view/login/daping";
+    }
 }
