@@ -68,4 +68,29 @@ public class ExecuteController extends BaseController{
         }
         return jsonObject;
     }
+    @RequestMapping(value = "/getRenyuanInfo")
+    @ResponseBody
+    public DataStore<Map<String,Object>> getRenyuanInfo(int pageNum,int limit){
+        List<Map<String,Object>> data = new ArrayList<>();
+        for(int i=0;i<5;i++) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("images", "/demo/images/renyuandangan/u522.png");
+            map.put("name", "王超");
+            map.put("ename", "wangchao");
+            map.put("sex", "男");
+            map.put("age", "35岁");
+            map.put("mz", "汉族");
+            map.put("sfhm", "110101199002190101");
+            map.put("mobile", "13501234567");
+            map.put("MAC", "08:9E:0A:45:34");
+            map.put("whcd", "初中");
+            map.put("zy", "教师");
+            map.put("cphm", "京N 43AB8");
+            map.put("hjdz", "北京市大兴区黄村二号院6楼");
+            map.put("clpp", "上海大众");
+            data.add(map);
+        }
+        DataStore<Map<String,Object>> dataStore = new DataStore<Map<String,Object>>(5,data,1,5);
+        return dataStore;
+    }
 }
