@@ -53,12 +53,42 @@
   <script src="<%=path%>/demo/resources/scripts/axure/math.js"></script>
   <script src="<%=path%>/demo/resources/scripts/echarts.min.js"></script>
   <script type="text/javascript">
+    function startTime()
+    {
+      var today=new Date()
+      var h=today.getHours()
+      var m=today.getMinutes()
+      var s=today.getSeconds()
+
+      var myyear=today.getFullYear();
+      var mymonth=today.getMonth();
+      var monthArray=["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"]
+      var mynowdate=today.getDate();
+      var myday=today.getDay();
+      var dayArray=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"]
+
+
+      m=checkTime(m)
+      s=checkTime(s)
+      document.getElementById('dateYear').innerHTML=myyear+"年"+monthArray[mymonth]+mynowdate+"日";
+      document.getElementById('time').innerHTML=h+":"+m+":"+s;
+      setTimeout('startTime()',1000)
+    }
+
+    function checkTime(i)
+    {
+      if (i<10)
+      {i="0" + i}
+      return i
+    }
+  </script>
+  <script type="text/javascript">
     $axure.utils.getTransparentGifPath = function() { return '<%=path%>/demo/resources/images/transparent.gif'; };
     $axure.utils.getOtherPath = function() { return '<%=path%>/demo/resources/Other.html'; };
     $axure.utils.getReloadPath = function() { return '<%=path%>/demo/resources/reload.html'; };
   </script>
 </head>
-<body>
+<body onload="startTime()">
 <div id="base" class="">
 
   <!-- Unnamed (Rectangle) -->
@@ -364,7 +394,7 @@
     <div id="u34_div" class=""></div>
     <!-- Unnamed () -->
     <div id="u35" class="text" style="visibility: visible;">
-      <p><span>2018年03月05日 09 : 30 : 00</span></p>
+      <p><span id="dateYear"></span><span id="time"></span></p>
     </div>
   </div>
 

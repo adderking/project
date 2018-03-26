@@ -6,6 +6,7 @@
  */
 var path = "";
 var limit =10;
+var info = "http://localhost:8080/mvc/person";
 var titles = ['任务名称','任务目标','开始时间','结束时间','任务类型','布控类型','布控总数','任务状态','操作'];
 var key = ['taskName','taskTarget','startTime','endTime','taskType','controlType','totalCount','taskStatus'];
 function qqbkText(basePath,actionInfo,macInfo,mac,macHistoryInfo,flag,val){
@@ -32,6 +33,42 @@ function qqbkText(basePath,actionInfo,macInfo,mac,macHistoryInfo,flag,val){
         success:function(data){
             if(data.records >= 0){
                 createTable(data,titles,key,url);
+            }else{
+                alert("获取信息失败");
+            }
+        },
+        error:function(data){
+            alert("获取信息失败");
+        }
+    });
+
+}
+function renyuanText(basePath,actionInfo,macInfo,mac,macHistoryInfo,flag,val){
+    var renyuanTitle= ['任务名称'];
+    var renyuanKey = ['taskName'];
+    var url = basePath+"/"+actionInfo;
+    path = basePath;
+    //生成 全区布控页面
+    //先初始化地图
+    $("#MacOrbit").text(macInfo);
+    $("#Mac").text(mac);
+    $("#MacHistoryInfo").text(macHistoryInfo);
+    $("#dp1").remove();
+    $("#dp2").remove();
+    $("#dp1label").remove();
+    $("#dp2label").remove();
+    $("#macAddress").remove();
+    $("#button").children().remove();
+    $("#mapContainer").children().remove();
+    //$("#button").append('<button type="button" class="btn btn-default" onclick="showdiv(\''+basePath+'\');");">新建</button>');
+    $.ajax({
+        type:"post",
+        url:url,
+        data:{pageNum:1,limit:limit},
+        dataType:"json",
+        success:function(data){
+            if(data.records >= 0){
+                createTableRenyuan(data,renyuanTitle,renyuanKey,url);
             }else{
                 alert("获取信息失败");
             }
@@ -105,6 +142,66 @@ function hidediv() {
     $("#bk").children().remove();
     document.getElementById("bg").style.display ='none';
     document.getElementById("show").style.display ='none';
+}
+function infoOpen(){
+    window.open('http://localhost:8080/mvc/person');
+}
+//自定义表格
+function createTableRenyuan(results,titles,keys,url){
+    $("#tableId tr:not(:first):not(:last)").remove();
+    var html = '<div class="body-nest" style="overflow:auto;" id="tableStatic"><section id="flip-scroll"><table id="tableId" style="overflow-y: scroll;" class="table table-bordered table-striped cf">' +
+        '<thead class="cf"><tr>';
+    for(var t=0;t<titles.length;t++){
+        html = html + '<th>人员列表:</th>';
+    }
+    html = html + '</tr></thead><tbody>';
+    for(var k=0;k<results.datas.length;k++){
+        html = html + "<tr>";
+        html = html + "<td><div id='wrap'><div id='div1' style='float: left;width: 10%;'><span>"+(parseInt(k)+parseInt(1))+".</span>&nbsp;&nbsp;&nbsp;<img height='40' width='45' src='"+results.datas[k].images+"'/></div>" +
+            "<div id='div2' style='float: right;width:90%;margin-top: 1px;line-height: 20px;'>"+results.datas[k].name+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+results.datas[k].sex+"("+results.datas[k].age+")" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+results.datas[k].mz+"" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+results.datas[k].sfhm+"" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+results.datas[k].whcd+"" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bold;'>职业</span>:&nbsp;&nbsp;&nbsp;&nbsp;"+results.datas[k].zy+"" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bold;'>手机号</span>:"+results.datas[k].mobile+"" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='#' onclick='infoOpen();'>档案</a></br>" +
+            "<span style='font-weight: bold;'>人员基本信息</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bold;'>户籍地址</span>:&nbsp;&nbsp;&nbsp;&nbsp;"+results.datas[k].hjdz+"" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bold;'>MAC地址</span>:&nbsp;&nbsp;&nbsp;&nbsp;"+results.datas[k].MAC+"" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bold;'>车牌号码</span>:&nbsp;&nbsp;&nbsp;&nbsp;"+results.datas[k].cphm+"" +
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-weight: bold;'>车辆品牌</span>:&nbsp;&nbsp;&nbsp;&nbsp;"+results.datas[k].clpp+"</div></div></td>"
+        html=html+"</tr>";
+        //html = html+'<td><a href="#" onclick="queryResult(\''+results.datas[k].ID+'\',\''+results.datas[k].taskType+'\',\''+results.datas[k].controlType+'\');">布控结果</a>';
+    }
+    html = html+'<tr><td colspan="10"><div id="ampagination" style="float: right;margin-right: 10px;"></div></td></tr></tbody></table></section></div>';
+    /*<tr><td>AAC</td><td>AUSTRALIAN AGRICULTURAL COMPANY LIMITED.</td>' +
+     '<td class="numeric">$1.38</td></td></tr><tr><td colspan="10"><div id="ampagination" style="float: right;margin-right: 10px;"></div></td></tr></tbody></table></section></div>';*/
+    $("#mapContainer").append(html);
+    //生成分页
+    var pager = jQuery('#ampagination').pagination({
+        page:1,
+        totals:results.records,
+        pageSize:5
+    });
+    pager.url=url;
+    pager.onChangePage(function(e){
+        //点击后需要做的操作
+        $.ajax({
+            type:"post",
+            url:url,
+            data:{pageNum: e.page,limit:limit},
+            dataType:"json",
+            success:function(data){
+                if(data.records >= 0){
+                    pageTable(data,titles,key);
+                }else{
+                    alert("获取信息失败");
+                }
+            },
+            error:function(data){
+                alert("获取信息失败");
+            }
+        });
+    });
 }
 /**
  * 提交表单
