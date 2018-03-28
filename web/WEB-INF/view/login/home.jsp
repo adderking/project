@@ -141,7 +141,36 @@
     }
   </style>
   <!--  END OF PAPER WRAP -->
+  <script type="text/javascript">
+    function startTime()
+    {
+      var today=new Date()
+      var h=today.getHours()
+      var m=today.getMinutes()
+      var s=today.getSeconds()
 
+      var myyear=today.getFullYear();
+      var mymonth=today.getMonth();
+      var monthArray=["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"]
+      var mynowdate=today.getDate();
+      var myday=today.getDay();
+      var dayArray=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"]
+
+
+      m=checkTime(m)
+      s=checkTime(s)
+      document.getElementById('dateYear').innerHTML=myyear+"年"+monthArray[mymonth]+mynowdate+"日"+dayArray[myday];
+      document.getElementById('time').innerHTML=h+":"+m+":"+s;
+      setTimeout('startTime()',1000)
+    }
+
+    function checkTime(i)
+    {
+      if (i<10)
+      {i="0" + i}
+      return i
+    }
+  </script>
   <!-- END OF RIGHT SLIDER CONTENT-->
   <script type="text/javascript" src="<%=path%>/offlinemap/jquery.js?version=<%=System.currentTimeMillis()%>"></script>
   <script type="text/javascript" src="<%=path%>/assets/js/bootstrap.js?version=<%=System.currentTimeMillis()%>"></script>
@@ -157,7 +186,7 @@
   <link rel="shortcut icon" href="<%=path%>/assets/ico/minus.png?version=<%=System.currentTimeMillis()%>">
 </head>
 
-<body>
+<body onload="startTime()">
 <!--弹出遮罩层-->
 <div id="bg"></div>
 <div id="show">
@@ -199,25 +228,18 @@
       <div id="nt-title-container" class="navbar-left running-text visible-lg">
         <ul class="date-top">
           <li class="entypo-calendar" style="margin-right:5px"></li>
-          <li id="Date"></li>
+          <li id="dateYear"></li>
 
 
         </ul>
-        <ul id="digital-clock" class="digital">
-          <li class="entypo-clock" style="margin-right:5px"></li>
-          <li class="hour"></li>
-          <li>:</li>
-          <li class="min"></li>
-          <li>:</li>
-          <li class="sec"></li>
-          <li class="meridiem"></li>
+        <ul id="time" class="digital">
         </ul>
       </div>
 
       <ul style="margin-right:0;" class="nav navbar-nav navbar-right">
         <li>
           <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-            <img alt="" class="admin-pic img-circle" src="">Hi, 方夏 <b class="caret"></b>
+            <%--<img alt="" class="admin-pic img-circle" src="">--%>Hi, 方夏 <b class="caret"></b>
           </a>
         </li>
       </ul>
@@ -342,9 +364,15 @@
             </a>
           </li>
           <li>
-            <a class="tooltip-tip" href="#" title="Tables">
+            <a class="tooltip-tip" href="#" onclick="renyuanText('<%=basePath%>/execute/','getRenyuanInfo','人员信息','人员','人员列表','1','人员姓名');" title="Tables">
               <i class="icon-media-shuffle"></i>
               <span>人员基本信息</span>
+            </a>
+          </li>
+          <li>
+            <a class="tooltip-tip" href="#" onclick="window.open('<%=basePath%>/mvc/daping')" title="Tables">
+              <i class="icon-media-shuffle"></i>
+              <span>大屏展示</span>
             </a>
           </li>
         </ul>
