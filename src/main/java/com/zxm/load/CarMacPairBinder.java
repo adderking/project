@@ -52,6 +52,7 @@ public class CarMacPairBinder {
                 CarTrace carTraceInstance = CreateInstanceUtil.createCarTraceInstance(rs);
                 bindCarWithMac(carTraceInstance);
             }
+            closeCache();
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -125,6 +126,12 @@ public class CarMacPairBinder {
         }
         // save
         JedisTools.addCarMacPair(counts);
+    }
+
+    private void closeCache() {
+        for(MacTraceCache cache : macTraceCache.values()) {
+            cache.close();
+        }
     }
 
 }

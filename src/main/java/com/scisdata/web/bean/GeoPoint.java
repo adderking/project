@@ -1,6 +1,6 @@
 package com.scisdata.web.bean;
 
-import com.wsh.tools.utils.MapCaculateUtil;
+import com.zxm.load.utils.MapCaculateUtil;
 import com.zxm.load.Direction;
 
 public class GeoPoint {
