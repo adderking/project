@@ -305,7 +305,7 @@ public class MacTraceCache {
      * 关闭缓存，并将offset地址写入redis中
      */
     public void close() {
-        if(offset.getStartFileName() != null) {
+        if(offset != null && offset.getStartFileName() != null) {
             JedisTools.setOffset(equipmentId, offset.getStartFileName(), offset.getStartLineIndex());
         }
     }
