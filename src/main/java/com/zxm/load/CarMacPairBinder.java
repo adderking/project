@@ -35,6 +35,11 @@ public class CarMacPairBinder {
 //        this.jedis = new JedisTools();
     }
 
+    /**
+     * 方法主入口
+     * @param startDate
+     * @throws ParseException
+     */
     public void execute(String startDate) throws ParseException {
 
         String sql = "SELECT primaryId, carPlateId, equipmentId, equipmentLocation, " +
@@ -68,7 +73,11 @@ public class CarMacPairBinder {
 
     }
 
-    // 遍历每一个采集设备，根据时间区间查询对应mac数据
+    /**
+     * 遍历每一个采集设备，根据时间区间查询对应mac数据
+     * @param carTrace
+     * @throws IOException
+     */
     public void bindCarWithMac(CarTrace carTrace) throws IOException {
         Map<String, DistanceRange> rangeMap =
                 computer.getRanges(videoEquipmentInfoMap.get(carTrace.getEquipmentId()));
@@ -94,6 +103,14 @@ public class CarMacPairBinder {
         }
     }
 
+    /**
+     * 查询所有匹配的mac地址信息
+     * @param equipmentId
+     * @param startTime
+     * @param endTime
+     * @return
+     * @throws IOException
+     */
     private List<MacTrace> getMatchedMacTrace(String equipmentId, Date startTime, Date endTime) throws IOException {
         MacTraceCache cache = macTraceCache.get(equipmentId);
         if(cache == null) {
@@ -113,6 +130,12 @@ public class CarMacPairBinder {
         return macTraces;
     }
 
+    /**
+     * 绑定车辆与mac地址信息，并存储入redis中
+     * @param carTrace
+     * @param macTraces
+     * @throws IOException
+     */
     public void bindCarWithMac(CarTrace carTrace, List<MacTrace> macTraces) throws IOException {
 //        String filePath = SystemConfig.getString(Constants.MAC_CAR_PAIR_FILE_PATH);
         HashMap<String, Integer> counts = new HashMap<>();

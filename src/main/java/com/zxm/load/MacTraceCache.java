@@ -37,6 +37,12 @@ public class MacTraceCache {
         offsetInit(equipmentId);
     }
 
+    /**
+     * 初始化缓存Offset，记录cache中存储了哪些文件中的数据，
+     * 并记录存储的起始文件及对应的起始位置，结束文件以及对应的结束位置
+     * @param equipmentId
+     * @throws IOException
+     */
     private void offsetInit(String equipmentId) throws IOException {
         String oo = JedisTools.getOffset(equipmentId);
         if(oo != null) {
@@ -47,6 +53,13 @@ public class MacTraceCache {
         }
     }
 
+    /**
+     * 根据时间范围查询所有在该时间范围内的mac地址信息
+     * @param startTime
+     * @param endTime
+     * @return
+     * @throws IOException
+     */
     public List<MacTrace> getMacTraces(Date startTime, Date endTime) throws IOException {
         List<MacTrace> macTraces = new ArrayList<>();
         int startIndex = 0;
@@ -84,6 +97,13 @@ public class MacTraceCache {
         return macTraces;
     }
 
+    /**
+     * cache缓存窗口向前移动step位
+     * 删除缓存中的前step个mac地址信息，
+     * 并缓存下step个mac地址信息。
+     * @return
+     * @throws IOException
+     */
     private int moveForward() throws IOException {
         int indexChangeSize = 0;
         rwLock.writeLock().lock();
@@ -101,6 +121,11 @@ public class MacTraceCache {
         return indexChangeSize;
     }
 
+    /**
+     * 向cache中添加mac地址信息
+     * @param append
+     * @return
+     */
     private boolean cacheMacTrace(boolean append) {
         if(currentCacheSize >= cacheSize) {
             return true;
@@ -164,6 +189,12 @@ public class MacTraceCache {
         }
     }
 
+    /**
+     * 解析mac地址信息
+     * @param json
+     * @return
+     * @throws ParseException
+     */
     private MacTrace parseJson(String json) throws ParseException {
         if(json == null) return null;
         JSONObject obj = JSON.parseObject(json);
@@ -248,6 +279,12 @@ public class MacTraceCache {
         return false;
     }
 
+    /**
+     * 查询下一个文件名
+     * @param currentFileName
+     * @param files
+     * @return
+     */
     private String getNextFileName(String currentFileName, File[] files) {
         List<String> matchedFiles = new ArrayList<>();
         for(int i=0; i<files.length; i++) {
@@ -264,6 +301,9 @@ public class MacTraceCache {
         return null;
     }
 
+    /**
+     * 关闭缓存，并将offset地址写入redis中
+     */
     public void close() {
         if(offset.getStartFileName() != null) {
             JedisTools.setOffset(equipmentId, offset.getStartFileName(), offset.getStartLineIndex());

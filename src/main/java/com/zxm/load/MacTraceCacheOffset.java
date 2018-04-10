@@ -35,6 +35,10 @@ public class MacTraceCacheOffset {
         this.size = size>=0?size:0;
     }
 
+    /**
+     * 重新设置offset信息
+     * @param num
+     */
     public void resetStartOffset(int num) {
         decreaseSize(num);
         /**

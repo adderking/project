@@ -37,7 +37,12 @@ public class RelationComputer {
         }
     }
 
-    //缓存wifi采集设备信息
+    /**
+     * 缓存wifi采集设备信息
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
     private List<WifiEquipmentInfo> cacheWifiEquipmentInfo(Connection conn) throws SQLException {
         List<WifiEquipmentInfo> wifiEquipmentInfos = new ArrayList<>();
         String sql = "SELECT primaryId, equipmentId, equipmentLocation, latitude, langitude, status FROM wifiequipmentinfo";
@@ -52,7 +57,12 @@ public class RelationComputer {
         return wifiEquipmentInfos;
     }
 
-    //缓存车辆采集设备信息
+    /**
+     * 缓存车辆采集设备信息
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
     private List<VideoEquipmentInfo> cacheVideoEquipmentInfo(Connection conn) throws SQLException {
         List<VideoEquipmentInfo> videoEquipmentInfos = new ArrayList<>();
         String sql = "SELECT primaryId, equipmentId, equipmentLocation, latitude, langitude, direction, channel, area, blatitude, blangitude FROM videoequipmentinfo";
@@ -77,6 +87,11 @@ public class RelationComputer {
         return map;
     }
 
+    /**
+     * 初始化设备间的距离信息
+     * @param videoEquipmentInfo
+     * @return
+     */
     private Map<Direction, LocationInfo> constructDistanceInfo(VideoEquipmentInfo videoEquipmentInfo) {
         GeoPoint videoEquipmentPosition = new GeoPoint(videoEquipmentInfo.getLatitude(), videoEquipmentInfo.getLangitude());
         Map<Direction, LocationInfo> infos = new HashMap<>();
@@ -100,6 +115,11 @@ public class RelationComputer {
         return infos;
     }
 
+    /**
+     * 获取距离信息
+     * @param videoEquipmentInfo
+     * @return
+     */
     public Map<String, DistanceRange> getRanges(VideoEquipmentInfo videoEquipmentInfo) {
         LocationInfo fromLocationInfo;
         LocationInfo toLocationInfo;
@@ -162,6 +182,13 @@ public class RelationComputer {
         return ranges;
     }
 
+    /**
+     * 与车辆采集设备方向不同时，计算与wifi采集设备的信息
+     * @param videoEquipmentInfo
+     * @param wifiLocationInfo
+     * @param direction
+     * @param ranges
+     */
     private void setBesideRange(VideoEquipmentInfo videoEquipmentInfo, LocationInfo wifiLocationInfo,
                                 Direction direction, Map<String, DistanceRange> ranges) {
         if(wifiLocationInfo == null) return;
@@ -202,6 +229,13 @@ public class RelationComputer {
         }
     }
 
+    /**
+     * 与车辆采集设备方向相同时，计算与wifi采集设备的信息
+     * @param videoEquipmentInfo
+     * @param wifiLocationInfo
+     * @param direction
+     * @param ranges
+     */
     private void setRanges(VideoEquipmentInfo videoEquipmentInfo, LocationInfo wifiLocationInfo,
                            String direction, Map<String, DistanceRange> ranges) {
         if(wifiLocationInfo == null) return;
